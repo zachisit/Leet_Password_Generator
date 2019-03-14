@@ -1,18 +1,49 @@
 import json
 import random
+import boto3
 
-#version 0.0.1
+# version 0.0.2
 
 def lambda_handler(event, context):
     g = APIResult()
     g.createPassword()
     g.returnResponse()
     
+    w = WriteToDynamo()
+    
     return {
         'statusCode': g.status,
-        'body': json.dumps(g.response)
+        'body': json.dumps(g.response),
+        'writeResult': w.writeToDynamo(g.response)
     }
     
+class WriteToDynamo():
+    """ Wrapper method to connect to and writeStatus
+        specific data of via DynamoDB instance """
+        
+    def __init__(self):
+        self.setTableName('ReturnedLeetPasswords')
+        self.dynamodb = self.initDynamo()
+            
+    def returnTableName(self):
+        return self.TableName
+        
+    def initDynamo(self):
+        return boto3.client('dynamodb')
+        
+    def setTableName(self, name):
+        self.TableName = name
+        
+    def writeToDynamo(self, password):
+        try:
+            self.dynamodb.put_item(TableName=self.returnTableName(), 
+Item={'createdWord':{'S':password}})
+            self.result = 'success'
+        except:
+            self.result = 'failure'
+        
+        return self.result
+
 class APIResult:
     """ Wrapper method to retrieve password and
         format the response """
