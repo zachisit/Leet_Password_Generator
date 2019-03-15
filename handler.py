@@ -2,27 +2,28 @@ import json
 import random
 import boto3
 import datetime
+import string
 
-# version 0.0.4
+# version 0.0.5
 
 def lambda_handler(event, context):
-    g = APIResult()
+    g = APIResult('complex')
     g.createPassword()
     g.returnResponse()
+    passwordResult = g.returnCreatedPassword()
     
-    w = WriteToDynamo(g.returnCreatedPassword())
+    w = WriteToDynamo(passwordResult)
     
     return {
         'statusCode': g.status,
         'headers': {'Content-Type': 'application/json'},
-        'body': json.dumps(g.returnCreatedPassword()),
+        'body': json.dumps(passwordResult),
         'writeResult': w.writeToDynamo()
     }
     
+""" Wrapper method to connect to and writeStatus
+    specific data of via DynamoDB instance """
 class WriteToDynamo():
-    """ Wrapper method to connect to and writeStatus
-        specific data of via DynamoDB instance """
-        
     def __init__(self, password):
         self.setTableName('ReturnedLeetPasswords')
         self.dynamodb = self.initDynamo()
@@ -52,16 +53,15 @@ Item={'id':{'N':self.generatePrimaryID()},'timestamp':{'S':self.generateTimeStam
         
     def writeToDynamo(self):
         return 'success' if self.processDynamoWrite() else 'failure'
-
-class APIResult:
-    """ Wrapper method to retrieve password and
-        format the response """
         
-    def __init__(self):
-        self.pw = GeneratePassword()
+""" Wrapper method to retrieve password and
+    format the response """
+class APIResult:
+    def __init__(self, type):
+        self.pw = GeneratePassword(type)
         
     def createPassword(self):
-        self.finalPassword = self.pw.generateFullBlobString()
+        self.finalPassword = self.pw.returnCreatedPassword()
         
     def returnCreatedPassword(self):
         return self.finalPassword
@@ -75,14 +75,30 @@ class APIResult:
             self.response = 'Error occured creating the password. Yell at your 
 computer screen now to resolve.'
 
+""" Generates a string based on 
+    the type passed in """
 class GeneratePassword:
-    """ To generate a full string password based on 
-        the three types of lists to choose from """
+    def __init__(self, type):
+        self.type = type
+        self.generatePassword()
         
-    def __init__(self):
-        self.firstBlob = self.generateFirstBlob()
-        self.secondBlob = self.generateSecondBlob()
-        self.thirdBlob = self.generateThirdBlob()
+    def returnCreatedPassword(self):
+        return self.createdPassword
+        
+    def generatePassword(self):
+        if self.type == 'complex':
+            self.generateComplexPassword()
+        elif self.type == 'leet':
+            self.generateLeetPassword()
+        
+    def generateComplexPassword(self, stringLength=25):
+        lettersAndDigits = string.ascii_letters + string.digits
+        self.createdPassword = ''.join(random.choice(lettersAndDigits) for i 
+in range(stringLength))
+        
+    def generateLeetPassword(self):
+        self.createdPassword =  str(self.generateFirstBlob() + 
+self.generateThirdBlob() + self.generateSecondBlob())
         
     def generateFirstBlob(self):
         return random.choice(self.returnBadWordsList())
@@ -92,9 +108,6 @@ class GeneratePassword:
         
     def generateThirdBlob(self):
         return random.choice(self.returnSpecialCharactersList())
-        
-    def generateFullBlobString(self):
-        return (self.firstBlob+self.thirdBlob+self.secondBlob)
         
     def returnBadWordsList(self):
         return ['6r01n', 'bu77', '703j4m', 'b0063r', 'puk3', 'd0n6']
