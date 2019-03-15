@@ -1,8 +1,9 @@
 import json
 import random
 import boto3
+import datetime
 
-# version 0.0.2
+# version 0.0.3
 
 def lambda_handler(event, context):
     g = APIResult()
@@ -13,6 +14,7 @@ def lambda_handler(event, context):
     
     return {
         'statusCode': g.status,
+        'headers': {'Content-Type': 'application/json'},
         'body': json.dumps(g.response),
         'writeResult': w.writeToDynamo(g.response)
     }
@@ -34,15 +36,23 @@ class WriteToDynamo():
     def setTableName(self, name):
         self.TableName = name
         
-    def writeToDynamo(self, password):
-        try:
-            self.dynamodb.put_item(TableName=self.returnTableName(), 
-Item={'createdWord':{'S':password}})
-            self.result = 'success'
-        except:
-            self.result = 'failure'
+    def generatePrimaryID(self):
+        return str(random.randrange(10**11, 10**12))
         
-        return self.result
+    def generateTimeStamp(self):
+        return str(datetime.datetime.now())
+        
+    def writeToDynamo(self, password):
+        #try:
+        #    self.dynamodb.put_item(TableName=self.returnTableName(), 
+Item={'id':{'N':self.generatePrimaryID()},'timestamp':{'S':self.generateTimeStamp()},'createdWord':{'S':password}})
+        #    self.result = 'success'
+        #except:
+        #    self.result = 'failure'
+        
+        #return self.result
+        self.result = self.dynamodb.put_item(TableName=self.returnTableName(), 
+Item={'id':{'N':self.generatePrimaryID()},'timestamp':{'S':self.generateTimeStamp()},'createdWord':{'S':password}})
 
 class APIResult:
     """ Wrapper method to retrieve password and
