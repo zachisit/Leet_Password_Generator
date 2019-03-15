@@ -1,18 +1,58 @@
 import json
 import random
+import boto3
+import datetime
 
-#version 0.0.1
+# version 0.0.4
 
 def lambda_handler(event, context):
     g = APIResult()
     g.createPassword()
     g.returnResponse()
     
+    w = WriteToDynamo(g.returnCreatedPassword())
+    
     return {
         'statusCode': g.status,
-        'body': json.dumps(g.response)
+        'headers': {'Content-Type': 'application/json'},
+        'body': json.dumps(g.returnCreatedPassword()),
+        'writeResult': w.writeToDynamo()
     }
     
+class WriteToDynamo():
+    """ Wrapper method to connect to and writeStatus
+        specific data of via DynamoDB instance """
+        
+    def __init__(self, password):
+        self.setTableName('ReturnedLeetPasswords')
+        self.dynamodb = self.initDynamo()
+        self.password = password
+        
+    def returnTableName(self):
+        return self.TableName
+        
+    def initDynamo(self):
+        return boto3.client('dynamodb')
+        
+    def setTableName(self, name):
+        self.TableName = name
+        
+    def generatePrimaryID(self):
+        return str(random.randrange(10**11, 10**12))
+        
+    def generateTimeStamp(self):
+        return str(datetime.datetime.now())
+        
+    def processDynamoWrite(self):
+        return self.dynamodb.put_item(TableName=self.returnTableName(), 
+Item={'id':{'N':self.generatePrimaryID()},'timestamp':{'S':self.generateTimeStamp()},'createdWord':{'S':self.returnPassword()}})
+        
+    def returnPassword(self):
+        return self.password
+        
+    def writeToDynamo(self):
+        return 'success' if self.processDynamoWrite() else 'failure'
+
 class APIResult:
     """ Wrapper method to retrieve password and
         format the response """
@@ -22,6 +62,9 @@ class APIResult:
         
     def createPassword(self):
         self.finalPassword = self.pw.generateFullBlobString()
+        
+    def returnCreatedPassword(self):
+        return self.finalPassword
         
     def returnResponse(self):
         if self.finalPassword:
