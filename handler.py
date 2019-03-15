@@ -3,30 +3,31 @@ import random
 import boto3
 import datetime
 
-# version 0.0.3
+# version 0.0.4
 
 def lambda_handler(event, context):
     g = APIResult()
     g.createPassword()
     g.returnResponse()
     
-    w = WriteToDynamo()
+    w = WriteToDynamo(g.returnCreatedPassword())
     
     return {
         'statusCode': g.status,
         'headers': {'Content-Type': 'application/json'},
-        'body': json.dumps(g.response),
-        'writeResult': w.writeToDynamo(g.response)
+        'body': json.dumps(g.returnCreatedPassword()),
+        'writeResult': w.writeToDynamo()
     }
     
 class WriteToDynamo():
     """ Wrapper method to connect to and writeStatus
         specific data of via DynamoDB instance """
         
-    def __init__(self):
+    def __init__(self, password):
         self.setTableName('ReturnedLeetPasswords')
         self.dynamodb = self.initDynamo()
-            
+        self.password = password
+        
     def returnTableName(self):
         return self.TableName
         
@@ -42,17 +43,15 @@ class WriteToDynamo():
     def generateTimeStamp(self):
         return str(datetime.datetime.now())
         
-    def writeToDynamo(self, password):
-        #try:
-        #    self.dynamodb.put_item(TableName=self.returnTableName(), 
-Item={'id':{'N':self.generatePrimaryID()},'timestamp':{'S':self.generateTimeStamp()},'createdWord':{'S':password}})
-        #    self.result = 'success'
-        #except:
-        #    self.result = 'failure'
+    def processDynamoWrite(self):
+        return self.dynamodb.put_item(TableName=self.returnTableName(), 
+Item={'id':{'N':self.generatePrimaryID()},'timestamp':{'S':self.generateTimeStamp()},'createdWord':{'S':self.returnPassword()}})
         
-        #return self.result
-        self.result = self.dynamodb.put_item(TableName=self.returnTableName(), 
-Item={'id':{'N':self.generatePrimaryID()},'timestamp':{'S':self.generateTimeStamp()},'createdWord':{'S':password}})
+    def returnPassword(self):
+        return self.password
+        
+    def writeToDynamo(self):
+        return 'success' if self.processDynamoWrite() else 'failure'
 
 class APIResult:
     """ Wrapper method to retrieve password and
@@ -63,6 +62,9 @@ class APIResult:
         
     def createPassword(self):
         self.finalPassword = self.pw.generateFullBlobString()
+        
+    def returnCreatedPassword(self):
+        return self.finalPassword
         
     def returnResponse(self):
         if self.finalPassword:
