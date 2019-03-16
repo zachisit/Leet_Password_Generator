@@ -4,30 +4,36 @@ import boto3
 import datetime
 import string
 
-# version 0.0.5
+# version 0.0.6
 
 def lambda_handler(event, context):
-    g = APIResult('complex')
+    type = event['body']['type']
+    IP = event['body']['IP']
+    
+    g = APIResult(type)
     g.createPassword()
     g.returnResponse()
     passwordResult = g.returnCreatedPassword()
     
-    w = WriteToDynamo(passwordResult)
+    w = WriteToDynamo(IP, context.aws_request_id)
     
     return {
         'statusCode': g.status,
         'headers': {'Content-Type': 'application/json'},
         'body': json.dumps(passwordResult),
-        'writeResult': w.writeToDynamo()
+        'writeResult': w.writeToDynamo(),
+        'typeProvided': type,
+        'requestID':context.aws_request_id
     }
     
 """ Wrapper method to connect to and writeStatus
     specific data of via DynamoDB instance """
 class WriteToDynamo():
-    def __init__(self, password):
+    def __init__(self, IP, requestID):
         self.setTableName('ReturnedLeetPasswords')
         self.dynamodb = self.initDynamo()
-        self.password = password
+        self.IP = IP
+        self.requestID = requestID
         
     def returnTableName(self):
         return self.TableName
@@ -46,10 +52,10 @@ class WriteToDynamo():
         
     def processDynamoWrite(self):
         return self.dynamodb.put_item(TableName=self.returnTableName(), 
-Item={'id':{'N':self.generatePrimaryID()},'timestamp':{'S':self.generateTimeStamp()},'createdWord':{'S':self.returnPassword()}})
+Item={'id':{'N':self.generatePrimaryID()},'requestID':{'S':self.requestID},'timestamp':{'S':self.generateTimeStamp()},'IP':{'S':self.returnIP()}})
         
-    def returnPassword(self):
-        return self.password
+    def returnIP(self):
+        return self.IP
         
     def writeToDynamo(self):
         return 'success' if self.processDynamoWrite() else 'failure'
@@ -72,8 +78,8 @@ class APIResult:
             self.response = self.finalPassword
         else:
             self.status = 500
-            self.response = 'Error occured creating the password. Yell at your 
-computer screen now to resolve.'
+            self.response = 'Error occured creating the password. Yell 
+at your computer screen now to resolve.'
 
 """ Generates a string based on 
     the type passed in """
@@ -93,8 +99,8 @@ class GeneratePassword:
         
     def generateComplexPassword(self, stringLength=25):
         lettersAndDigits = string.ascii_letters + string.digits
-        self.createdPassword = ''.join(random.choice(lettersAndDigits) for i 
-in range(stringLength))
+        self.createdPassword = ''.join(random.choice(lettersAndDigits) 
+for i in range(stringLength))
         
     def generateLeetPassword(self):
         self.createdPassword =  str(self.generateFirstBlob() + 
