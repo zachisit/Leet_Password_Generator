@@ -1,10 +1,6 @@
-import json
-import random
-import boto3
-import datetime
-import string
+import json, random, boto3, datetime, string, glob, urllib.request
 
-# version 0.0.6
+# version 0.0.7
 
 def lambda_handler(event, context):
     type = event['body']['type']
@@ -15,7 +11,7 @@ def lambda_handler(event, context):
     g.returnResponse()
     passwordResult = g.returnCreatedPassword()
     
-    w = WriteToDynamo(IP, context.aws_request_id)
+    w = WriteToDynamo(IP, context.aws_request_id, type)
     
     return {
         'statusCode': g.status,
@@ -29,8 +25,9 @@ def lambda_handler(event, context):
 """ Wrapper method to connect to and writeStatus
     specific data of via DynamoDB instance """
 class WriteToDynamo():
-    def __init__(self, IP, requestID):
+    def __init__(self, IP, requestID, type):
         self.setTableName('ReturnedLeetPasswords')
+        self.type = type
         self.dynamodb = self.initDynamo()
         self.IP = IP
         self.requestID = requestID
@@ -52,7 +49,7 @@ class WriteToDynamo():
         
     def processDynamoWrite(self):
         return self.dynamodb.put_item(TableName=self.returnTableName(), 
-Item={'id':{'N':self.generatePrimaryID()},'requestID':{'S':self.requestID},'timestamp':{'S':self.generateTimeStamp()},'IP':{'S':self.returnIP()}})
+Item={'id':{'N':self.generatePrimaryID()},'requestID':{'S':self.requestID},'type':{'S':self.type},'timestamp':{'S':self.generateTimeStamp()},'IP':{'S':self.returnIP()}})
         
     def returnIP(self):
         return self.IP
@@ -63,6 +60,7 @@ Item={'id':{'N':self.generatePrimaryID()},'requestID':{'S':self.requestID},'time
 """ Wrapper method to retrieve password and
     format the response """
 class APIResult:
+    #TODO: if no type passed in then throw failure
     def __init__(self, type):
         self.pw = GeneratePassword(type)
         
@@ -70,7 +68,7 @@ class APIResult:
         self.finalPassword = self.pw.returnCreatedPassword()
         
     def returnCreatedPassword(self):
-        return self.finalPassword
+        return str(self.finalPassword)
         
     def returnResponse(self):
         if self.finalPassword:
@@ -102,24 +100,22 @@ class GeneratePassword:
         self.createdPassword = ''.join(random.choice(lettersAndDigits) 
 for i in range(stringLength))
         
+    def readLeetDictionary(self):
+        jsonFile = 
+'https://s3.amazonaws.com/passwurd-hosted-site/leetDictionary.json'
+        with urllib.request.urlopen(jsonFile) as url:
+            self.data = json.loads(url.read().decode())
+            
     def generateLeetPassword(self):
+        self.readLeetDictionary()
         self.createdPassword =  str(self.generateFirstBlob() + 
 self.generateThirdBlob() + self.generateSecondBlob())
         
     def generateFirstBlob(self):
-        return random.choice(self.returnBadWordsList())
+        return random.choice(self.data['badWords'])
         
     def generateSecondBlob(self):
-        return random.choice(self.returnGoodWordsList())
+        return random.choice(self.data['goodWords'])
         
     def generateThirdBlob(self):
-        return random.choice(self.returnSpecialCharactersList())
-        
-    def returnBadWordsList(self):
-        return ['6r01n', 'bu77', '703j4m', 'b0063r', 'puk3', 'd0n6']
-        
-    def returnGoodWordsList(self):
-        return ['7035', 'k1773n', 'pudd1n6', 'ch41r', 'c4r']
-        
-    def returnSpecialCharactersList(self):
-        return ['>', '*', '$', '=', '_', '<', '&', '#', '%', '@', '!']
+        return random.choice(self.data['specialCharacters'])
