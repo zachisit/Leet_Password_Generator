@@ -1,25 +1,29 @@
 import json, random, boto3, datetime, string, glob, urllib.request
 
-# version 0.0.7
+# version 0.0.8
+
+#@TODO: if passed in 'type' not per our type, then return error message 
+and set statusCode
 
 def lambda_handler(event, context):
-    type = event['body']['type']
-    IP = event['body']['IP']
+    # build our data
+    payload = json.loads(event['body'])
+    type = payload['passType']
+    IP = payload['IP']
     
+    # create API result
     g = APIResult(type)
     g.createPassword()
     g.returnResponse()
-    passwordResult = g.returnCreatedPassword()
     
+    # record entry in DynamoDB
     w = WriteToDynamo(IP, context.aws_request_id, type)
-    
+
     return {
-        'statusCode': g.status,
+        'isBase64Encoded': False,
+        'statusCode': g.returnStatusCode(),
         'headers': {'Content-Type': 'application/json'},
-        'body': json.dumps(passwordResult),
-        'writeResult': w.writeToDynamo(),
-        'typeProvided': type,
-        'requestID':context.aws_request_id
+        'body': json.dumps(g.returnCreatedPassword())
     }
     
 """ Wrapper method to connect to and writeStatus
@@ -60,7 +64,6 @@ Item={'id':{'N':self.generatePrimaryID()},'requestID':{'S':self.requestID},'type
 """ Wrapper method to retrieve password and
     format the response """
 class APIResult:
-    #TODO: if no type passed in then throw failure
     def __init__(self, type):
         self.pw = GeneratePassword(type)
         
@@ -69,6 +72,9 @@ class APIResult:
         
     def returnCreatedPassword(self):
         return str(self.finalPassword)
+        
+    def returnStatusCode(self):
+        return self.status
         
     def returnResponse(self):
         if self.finalPassword:
