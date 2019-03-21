@@ -1,9 +1,6 @@
 import json, random, boto3, datetime, string, glob, urllib.request
 
-# version 0.0.8
-
-#@TODO: if passed in 'type' not per our type, then return error message 
-and set statusCode
+# version 0.0.9
 
 def lambda_handler(event, context):
     # build our data
@@ -12,18 +9,17 @@ def lambda_handler(event, context):
     IP = payload['IP']
     
     # create API result
-    g = APIResult(type)
-    g.createPassword()
-    g.returnResponse()
+    response = APIResult(type)
     
     # record entry in DynamoDB
+    #@TODO: record failure as well
     w = WriteToDynamo(IP, context.aws_request_id, type)
 
     return {
         'isBase64Encoded': False,
-        'statusCode': g.returnStatusCode(),
+        'statusCode': response.returnStatusCode(),
         'headers': {'Content-Type': 'application/json'},
-        'body': json.dumps(g.returnCreatedPassword())
+        'body': json.dumps(response.returnResponse())
     }
     
 """ Wrapper method to connect to and writeStatus
@@ -65,25 +61,29 @@ Item={'id':{'N':self.generatePrimaryID()},'requestID':{'S':self.requestID},'type
     format the response """
 class APIResult:
     def __init__(self, type):
-        self.pw = GeneratePassword(type)
+        self.validateType(type)
         
+    def validateType(self, type):
+        if (type == 'complex') or (type == 'leet'):
+            self.pw = GeneratePassword(type)
+            self.createPassword()
+            self.status = 200
+        else:
+            self.status = 404
+            self.response = 'Invalid type passed into API'
+            
     def createPassword(self):
         self.finalPassword = self.pw.returnCreatedPassword()
+        self.response = self.finalPassword
         
     def returnCreatedPassword(self):
         return str(self.finalPassword)
         
     def returnStatusCode(self):
         return self.status
-        
+    
     def returnResponse(self):
-        if self.finalPassword:
-            self.status = 200
-            self.response = self.finalPassword
-        else:
-            self.status = 500
-            self.response = 'Error occured creating the password. Yell 
-at your computer screen now to resolve.'
+        return self.response
 
 """ Generates a string based on 
     the type passed in """
