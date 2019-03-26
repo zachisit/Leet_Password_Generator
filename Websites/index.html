@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet"
+          type="text/css"
+          href="main.css"
+          charset="utf-8"/>
+    <script type="text/javascript" src="Interface.js"></script>
+    <!--<script type="text/javascript" src="https://s3.amazonaws.com/passwurd-hosted-site/Interface.js"></script>-->
+    <script type="text/javascript">
+        Interface = new GeneratePassword();
+    </script>
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+          crossorigin="anonymous">
+</head>
+<body>
+<main>
+    <section class="passwordGenerate">
+        <div class="createdPassword"
+             data-action="copyPassword"
+             title="Copy To Clipboard"
+        >Pa83ndfe9!</div>
+        <div class="copyAction">
+            <button title="Copy"
+                    class="copyPassword"
+                    data-action="copyPassword"
+            ><i class="far fa-copy"></i></button>
+            <i class="fas fa-check hidden"></i>
+        </div>
+        <form class="passGenForm">
+            <label for="type">Type</label>
+            <select name="type"
+                    id="type">
+                <option value="0">complex</option>
+                <option value="1">leet</option>
+            </select>
+            <button title="Create Password"
+                    data-action="generatePassword"
+            >Create Password</button>
+        </form>
+    </section>
+</main>
+<footer>
+    <p>Powered by Python, SASS, JavaScript, AWS Lambda FAAS with API Gateway, and love.</p>
+    <ul>
+        <li class="twitter">
+            <a href="https://twitter.com/zachisit"
+               title="Zachary Smith Twitter"
+               target="_blank"
+               >Cache Me Ouside On Twitter</a>
+        </li>
+        <li class="github">
+            <a href="https://github.com/zachisit"
+               title="Zachary Smith GitHub"
+               target="_blank"
+               >GitHurb</a>
+        </li>
+    </ul>
+</footer>
+</body>
+</html>

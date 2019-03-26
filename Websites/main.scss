@@ -1,0 +1,129 @@
+body {
+  margin:0;
+  padding:0;
+  background:#d1efff;
+}
+
+main {
+
+  section {
+    display:block;
+    margin:4em auto;
+
+    &.passwordGenerate {
+      width:300px;
+      padding:1em;
+      margin:4em auto;
+      display:block;
+      background:white;
+      box-shadow:5px 5px black;
+
+      .createdPassword {
+        background:#f5f5f5;
+        padding:0.5em;
+        text-align:center;
+        font-size:2em;
+        font-weight:100;
+        font-family:"Courier New",sans-serif;
+        min-height:36px;
+        cursor:pointer;
+      }
+
+      .copyAction {
+        display:block;
+        height:20px;
+
+        .copyPassword {
+          background:white;
+          border:none;
+          color:#ccc;
+          padding:0.2em;
+          font-size:1.1em;
+          cursor:pointer;
+
+          &:hover {
+            color:#333;
+          }
+        }
+
+        .fa-check {
+          color:#a5a0a0;
+          margin:0.1em 0 0 0.15em;
+          font-size:1em;
+
+          &.visible {
+            visibility:visible;
+            opacity:1;
+          }
+
+          &.hidden {
+            visibility:hidden;
+            opacity:0;
+            transition:visibility 0s 2s, opacity 2s linear;
+          }
+        }
+      }
+
+      form {
+        display:block;
+        margin:2em 0 0 0;
+
+        label {
+          font-family:sans-serif;
+          text-transform:uppercase;
+          font-weight:800;
+          font-size:0.6em;
+          vertical-align:top;
+        }
+
+        select {
+          background:white;
+          border:1px solid #333;
+        }
+
+        button {
+          background:black;
+          color:white;
+          outline:none;
+          border:none;
+          float:right;
+          padding:0.5em;
+          cursor:pointer;
+          margin:-5px 0 0 0;
+        }
+      }
+    }
+  }
+}
+
+footer {
+  text-align:center;
+  color:#333;
+  width:100%;
+  position:absolute;
+  bottom:1%;
+
+  p {
+    font-size:0.9em;
+    font-style:italic;
+    margin:0;
+  }
+
+  ul {
+    margin:0;
+
+    li {
+      display:inline-block;
+      margin:0 1em 0 0;
+
+      &:last-of-type {
+        margin:0;
+      }
+
+      a {
+        color:#333;
+        font-size:0.8em;
+      }
+    }
+  }
+}
