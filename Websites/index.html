@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Passwordington - Generate Secure Passwords</title>
+    <meta name="description" content="Generate secure and 1337 Passwords">
+    <meta name="keywords" content="password generator, 1337 password generator, IT password, create password">
+    <meta name="author" content="Zach Smith">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet"
           type="text/css"
           href="main.css"
@@ -20,28 +24,61 @@
 <body>
 <main>
     <section class="passwordGenerate">
-        <div class="createdPassword"
-             data-action="copyPassword"
-             title="Copy To Clipboard"
-        >Pa83ndfe9!</div>
-        <div class="copyAction">
-            <button title="Copy"
-                    class="copyPassword"
-                    data-action="copyPassword"
-            ><i class="far fa-copy"></i></button>
-            <i class="fas fa-check hidden"></i>
+        <div class="container">
+            <div class="top">
+                <img src="tophat.png"
+                     alt="top top" />
+            </div>
+            <div class="createdPassword"
+                 data-action="copyPassword"
+                 title="Copy To Clipboard"
+                 tabindex="4"
+            >Pa83ndfe9!</div>
+            <div class="copyAction">
+                <button title="Copy"
+                        class="copyPassword"
+                        data-action="copyPassword"
+                        tabindex="3"
+                ><i class="far fa-copy"></i></button>
+                <i class="fas fa-check hidden"></i>
+            </div>
+            <form class="passGenForm">
+                <label for="type">Type</label>
+                <select name="type"
+                        id="type"
+                        tabindex="1">
+                    <option value="0">complex</option>
+                    <option value="1">leet</option>
+                </select>
+                <button title="Create Password"
+                        data-action="generatePassword"
+                        tabindex="2"
+                >Create Passwordington</button>
+            </form>
         </div>
-        <form class="passGenForm">
-            <label for="type">Type</label>
-            <select name="type"
-                    id="type">
-                <option value="0">complex</option>
-                <option value="1">leet</option>
-            </select>
-            <button title="Create Password"
-                    data-action="generatePassword"
-            >Create Password</button>
-        </form>
+    </section>
+    <section class="passwordHistory"
+             data-opentype="open">
+        <div class="menuAction">
+            <button class="visibleAction"
+                    title="Close Menu"
+                    data-action="passwordHistoryMenuAction"
+            ><i class="fa fa-chevron-down passwordHistoryChevron"></i>
+            </button>
+        </div>
+        <div class="tableContainer">
+            <table class="passwordHistoryList">
+                <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Password</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody class="passwordHistoryBody"><!-- --></tbody>
+            </table>
+        </div>
     </section>
 </main>
 <footer>

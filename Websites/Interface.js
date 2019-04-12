@@ -4,8 +4,8 @@
  * This file should be included on interface pages that make use of the generalized interface
  *
  * @author Zachary Smith
- * @version 1.0.2
- * @package FlightControl
+ * @version 1.0.9
+ * @package GeneratePassword
  */
 
 /** @global */
@@ -35,11 +35,14 @@ document.addEventListener("DOMContentLoaded", function(){
  * @constructor
  */
 function GeneratePassword(){
-    this.iceCreamIcon = null;
+    this.checkIcon = null;
     this.creatPasswordContainer = null;
     this.typeSelected = null;
     this.copyIcon = null;
     this.generatedPassword = 'Pa83ndfe9!';
+    this.generatedPasswordType = 'complex';
+    this.generatedPasswords = [];
+    this.passwordHistoryBlock = null;
 }
 
 /**
@@ -47,21 +50,60 @@ function GeneratePassword(){
  * @param self
  */
 GeneratePassword.prototype.init = function(self){
+    console.log('initializing GeneratePassword v1.0.10');
     var self = this;
 
     document.body.addEventListener('click', this);
-    document.body.addEventListener('keypress', this);
 
-    this.iceCreamIcon = document.getElementsByClassName('fa-check')[0];
+    //@TODO:refactor to pull dom from parent
+    this.checkIcon = document.getElementsByClassName('fa-check')[0];
     this.creatPasswordContainer = document.getElementsByClassName('createdPassword')[0];
     this.typeSelected = document.getElementById('type');
     this.copyIcon = document.getElementsByClassName('copyPassword')[0];
+    this.passwordHistoryBlock = document.getElementsByClassName('passwordHistory')[0];
+};
+
+GeneratePassword.prototype.returnUserIP = function(self) {
+    //@TODO
+    console.log('Obtaining user IP');
+};
+
+/**
+ * Set Type string from select option value
+ *
+ * @param set
+ */
+GeneratePassword.prototype.setType = function(set) {
+    switch (this.typeSelected.value) {
+        case '0':
+            this.generatedPasswordType = 'complex';
+            break;
+        case '1':
+            this.generatedPasswordType = 'leet';
+            break;
+            //no default
+    }
+};
+
+GeneratePassword.prototype.returnPassword = function(self) {
+    console.log('Calling API to generate password');
+    var self = this;
+
+    self.callGenericBackend('https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnLeetString-API',JSON.stringify({
+        "passType": self.generatedPasswordType,
+        "IP": "19.2.121.122"
+    }))
+        .then(function(result){
+            console.log(result);
+            self.generatedPassword = result
+        });
 };
 
 GeneratePassword.prototype.generatePassword = function(self,e,el) {
     e.preventDefault();
 
-    var typeSelected = this.typeSelected[this.typeSelected.selectedIndex].value;
+    var typeSelected = this.typeSelected[this.typeSelected.selectedIndex].value,
+        self = this;
 
     //remove current text
     this.creatPasswordContainer.innerHTML = '';
@@ -72,17 +114,92 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
     this.creatPasswordContainer.appendChild(waitIcon);
     this.toggleCopyPassword('hide');
 
+    //set type
+    this.setType();
+
+    //build password history
+    this.recordPasswordHistory();
+    //@TODO:pass history removed for now
+
     //return API response
-    // self.callGenericBackend('https://ipapi.co/ip/')
+    // this.callGenericBackend('https://ipapi.co/ip/')
     //     .then(function(result){
     //         console.log(result)
     //     })
+    //     .then(function(){
+    //         console.log('to returnPassword');
+    //         self.returnPassword();
+    //     });
+
+    this.callGenericBackend(
+        'GET',
+        'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnLeetString-API',
+        {"passType": "complex","IP": "19.2.121.122"}
+        )
+        .then(function(response){
+            console.log(response)
+        });
 
     //set returned password to this.createdPassword
 
     //paint to div
     this.creatPasswordContainer.innerHTML = 'yoink'; //@TODO: to be this.createdPassword
+    this.copyIcon.setAttribute('data-pass','yoink');
     this.toggleCopyPassword('show');
+};
+
+GeneratePassword.prototype.recordPasswordHistory = function() {
+    //get timestamp
+    var timestamp = new Date().getTime();
+
+    //build history of created passwords
+    //@TODO: password to be changed to this.generatedPass
+    this.generatedPasswords.push({
+        'time':timestamp,
+        'type':this.generatedPasswordType,
+        'password':'yoink'
+    });
+
+    //password history ui
+    if (this.generatedPasswords.length > 1) {
+        console.log('Now showing password history tray');
+        console.log('length of pass history: '+this.generatedPasswords.length);
+        //self.passwordHistoryBlock.style.display = 'block';
+
+        document.getElementsByClassName('passwordHistory')[0].style.display = 'block';
+        var table = document.getElementsByClassName('passwordHistoryBody')[0];
+
+        //console.log(self.passwordHistoryBlock.childNodes[1].table)
+        //self.passwordHistoryBlock.childNodes[1].table.style.background = 'red';
+
+        var rowTr = document.createElement('tr'),
+            rowFirstTd = document.createElement('td'),
+            rowSecondTd = document.createElement('td'),
+            rowThirdTd = document.createElement('td'),
+            rowFourTd = document.createElement('td'),
+            copyDiv = document.createElement('div'),
+            copyButton = document.createElement('button'),
+            copyButtonI = document.createElement('i');
+
+        copyDiv.setAttribute('class','copyAction');
+        copyButton.setAttribute('title','Copy');
+        copyButton.setAttribute('class','copyPassword');
+        copyButton.setAttribute('data-action','copyPassword');
+        copyButton.setAttribute('data-pass',this.generatedPassword);
+        copyButtonI.setAttribute('class','fa fa-copy');
+        rowFirstTd.innerText = timestamp;
+        rowSecondTd.innerText = this.generatedPasswordType;
+        rowThirdTd.innerText = this.generatedPassword;
+
+        rowTr.appendChild(rowFirstTd);
+        rowTr.appendChild(rowSecondTd);
+        rowTr.appendChild(rowThirdTd);
+        copyButton.appendChild(copyButtonI);
+        rowTr.appendChild(rowFourTd).appendChild(copyDiv).appendChild(copyButton);
+
+        table.appendChild(rowTr);
+    }
+    console.log(this.generatedPasswords);
 };
 
 /**
@@ -120,15 +237,15 @@ GeneratePassword.prototype.toggleCheckMark = function(type) {
     switch (type) {
         case 'show':
             //styleResult = 'inline-block';
-            styleResult = self.iceCreamIcon.classList = 'fas fa-check visible';
+            styleResult = self.checkIcon.classList = 'fas fa-check visible';
             break;
         case 'hide':
             //styleResult = 'none';
-            styleResult = self.iceCreamIcon.classList = 'fas fa-check hidden';
+            styleResult = self.checkIcon.classList = 'fas fa-check hidden';
             break;
     }
 
-    return this.iceCreamIcon.style.display = styleResult;
+    return this.checkIcon.style.display = styleResult;
 };
 
 /**
@@ -139,9 +256,10 @@ GeneratePassword.prototype.toggleCheckMark = function(type) {
  * @param el
  */
 GeneratePassword.prototype.copyPassword = function(self,e,el) {
-    var self = this
+    console.log('Copying generated password to user clipboard');
+    var self = this;
 
-    self.doCopy(this.creatPasswordContainer.innerText);
+    self.doCopy(e.target.parentNode.getAttribute('data-pass'));
     self.toggleCheckMark('show');
 
     setTimeout(function(){
@@ -149,6 +267,34 @@ GeneratePassword.prototype.copyPassword = function(self,e,el) {
     }, 900);
 };
 
+GeneratePassword.prototype.passwordHistoryMenuAction = function(self,e,el) {
+    console.log('passwordHistoryMenuAction')
+    //@TODO: following vars would need to be from Interface:
+    var table = document.getElementsByClassName('tableContainer')[0],
+        openStatus = this.passwordHistoryBlock.dataset.opentype,
+        passIcon = document.getElementsByClassName('passwordHistoryChevron')[0];
+
+    switch (openStatus) {
+        case 'open':
+            //we should close
+            table.style.display = 'none';
+            this.passwordHistoryBlock.style.height = '20px';
+            this.passwordHistoryBlock.dataset.opentype = 'closed';
+            passIcon.classList = 'fa fa-chevron-up passwordHistoryChevron';
+            break;
+        case 'closed':
+            //we should open
+            table.style.display = 'block';
+            this.passwordHistoryBlock.style.height = 'auto';
+            this.passwordHistoryBlock.dataset.opentype = 'open';
+            passIcon.classList = 'fa fa-chevron-down passwordHistoryChevron';
+            break;
+    }
+
+    console.log(this.passwordHistoryBlock.dataset.opentype);
+
+
+};
 
 // utility methods
 
@@ -272,13 +418,14 @@ GeneratePassword.prototype._getContextData = function(el){
  * @param postData
  * @returns {Promise<any>}
  */
-GeneratePassword.prototype.callGenericBackend = function(endpoint, postData) {
+GeneratePassword.prototype.callGenericBackend = function(method, endpoint, postData) {
     var xhr = new XMLHttpRequest();
     postData = postData ? postData : {};
 
     xhr.open(
-        "POST",
-        endpoint, true
+        method,
+        endpoint,
+        true
     );
     xhr.setRequestHeader("Content-Type", "application/json");
     //xhr.setRequestHeader('Access-Control-Allow-Headers', '*');

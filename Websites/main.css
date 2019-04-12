@@ -6,6 +6,42 @@ body {
 main section {
   display: block;
   margin: 4em auto; }
+  main section .copyAction {
+    display: block;
+    height: 20px; }
+    main section .copyAction .copyPassword {
+      -webkit-transition: 500ms all ease;
+      -moz-transition: 500ms all ease;
+      -ms-transition: 500ms all ease;
+      -o-transition: 500ms all ease;
+      transition: 500ms all ease;
+      background: white;
+      border: none;
+      color: #ccc;
+      padding: 0.2em;
+      font-size: 1.1em;
+      cursor: pointer; }
+      main section .copyAction .copyPassword:hover {
+        color: #333; }
+      main section .copyAction .copyPassword:focus {
+        -webkit-transition: 500ms all ease;
+        -moz-transition: 500ms all ease;
+        -ms-transition: 500ms all ease;
+        -o-transition: 500ms all ease;
+        transition: 500ms all ease;
+        margin-top: -2px;
+        outline: none; }
+    main section .copyAction .fa-check {
+      color: #a5a0a0;
+      margin: 0.1em 0 0 0.15em;
+      font-size: 1em; }
+      main section .copyAction .fa-check.visible {
+        visibility: visible;
+        opacity: 1; }
+      main section .copyAction .fa-check.hidden {
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s 2s, opacity 2s linear; }
   main section.passwordGenerate {
     width: 300px;
     padding: 1em;
@@ -13,59 +49,109 @@ main section {
     display: block;
     background: white;
     box-shadow: 5px 5px black; }
-    main section.passwordGenerate .createdPassword {
-      background: #f5f5f5;
-      padding: 0.5em;
-      text-align: center;
-      font-size: 2em;
-      font-weight: 100;
-      font-family: "Courier New",sans-serif;
-      min-height: 36px;
-      cursor: pointer; }
-    main section.passwordGenerate .copyAction {
-      display: block;
-      height: 20px; }
-      main section.passwordGenerate .copyAction .copyPassword {
-        background: white;
-        border: none;
-        color: #ccc;
-        padding: 0.2em;
-        font-size: 1.1em;
+    main section.passwordGenerate .container {
+      position: relative; }
+      main section.passwordGenerate .container .top {
+        position: absolute;
+        top: -49px;
+        right: -3px; }
+      main section.passwordGenerate .container .createdPassword {
+        background: #f5f5f5;
+        padding: 0.5em;
+        text-align: center;
+        font-size: 2em;
+        font-weight: 100;
+        font-family: "Courier New",sans-serif;
+        min-height: 36px;
         cursor: pointer; }
-        main section.passwordGenerate .copyAction .copyPassword:hover {
-          color: #333; }
-      main section.passwordGenerate .copyAction .fa-check {
-        color: #a5a0a0;
-        margin: 0.1em 0 0 0.15em;
-        font-size: 1em; }
-        main section.passwordGenerate .copyAction .fa-check.visible {
-          visibility: visible;
-          opacity: 1; }
-        main section.passwordGenerate .copyAction .fa-check.hidden {
-          visibility: hidden;
-          opacity: 0;
-          transition: visibility 0s 2s, opacity 2s linear; }
-    main section.passwordGenerate form {
+      main section.passwordGenerate .container form {
+        display: block;
+        margin: 2em 0 0 0; }
+        main section.passwordGenerate .container form label {
+          font-family: sans-serif;
+          text-transform: uppercase;
+          font-weight: 800;
+          font-size: 0.6em;
+          vertical-align: top; }
+        main section.passwordGenerate .container form select {
+          background: white;
+          border: 1px solid #333; }
+        main section.passwordGenerate .container form button {
+          background: black;
+          color: white;
+          outline: none;
+          border: none;
+          float: right;
+          padding: 0.5em;
+          cursor: pointer;
+          margin: -5px 0 0 0; }
+  main section.passwordHistory {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    right: 1%;
+    background: white;
+    width: 300px;
+    height: 200px; }
+    main section.passwordHistory .menuAction {
+      position: relative;
       display: block;
-      margin: 2em 0 0 0; }
-      main section.passwordGenerate form label {
-        font-family: sans-serif;
-        text-transform: uppercase;
-        font-weight: 800;
-        font-size: 0.6em;
-        vertical-align: top; }
-      main section.passwordGenerate form select {
+      margin: 0 0 0.5em 0;
+      height: 10px; }
+      main section.passwordHistory .menuAction .visibleAction {
         background: white;
-        border: 1px solid #333; }
-      main section.passwordGenerate form button {
-        background: black;
-        color: white;
         outline: none;
         border: none;
-        float: right;
-        padding: 0.5em;
         cursor: pointer;
-        margin: -5px 0 0 0; }
+        position: absolute;
+        top: 0;
+        right: 0; }
+    main section.passwordHistory .tableContainer {
+      height: 180px;
+      max-height: 180px;
+      overflow-y: scroll;
+      overflow-x: hidden; }
+      main section.passwordHistory .tableContainer table {
+        font-family: 'Helvetica',sans-serif;
+        text-align: center;
+        color: #333;
+        position: relative; }
+        main section.passwordHistory .tableContainer table thead {
+          font-size: 0.8em;
+          font-weight: 200;
+          width: 100%;
+          background: white; }
+          main section.passwordHistory .tableContainer table thead th {
+            position: sticky;
+            background: white;
+            top: 0px; }
+            main section.passwordHistory .tableContainer table thead th:nth-of-type(1), main section.passwordHistory .tableContainer table thead th:nth-of-type(2) {
+              width: 15%; }
+            main section.passwordHistory .tableContainer table thead th:nth-of-type(3) {
+              width: 59%; }
+            main section.passwordHistory .tableContainer table thead th:nth-of-type(4) {
+              width: 10%; }
+        main section.passwordHistory .tableContainer table tbody {
+          font-size: 0.7em; }
+          main section.passwordHistory .tableContainer table tbody tr {
+            border-bottom: 1px solid #e4e4e4; }
+            main section.passwordHistory .tableContainer table tbody tr td {
+              padding: 0.5em; }
+              main section.passwordHistory .tableContainer table tbody tr td:nth-of-type(1), main section.passwordHistory .tableContainer table tbody tr td:nth-of-type(2) {
+                width: 15%; }
+              main section.passwordHistory .tableContainer table tbody tr td:nth-of-type(3) {
+                width: 59%;
+                font-family: "Courier New",sans-serif; }
+              main section.passwordHistory .tableContainer table tbody tr td:nth-of-type(4) {
+                width: 10%; }
+            main section.passwordHistory .tableContainer table tbody tr:nth-of-type(even) {
+              background: #f3f3f3; }
+        main section.passwordHistory .tableContainer table::-webkit-scrollbar {
+          width: 10px; }
+        main section.passwordHistory .tableContainer table::-webkit-scrollbar-track {
+          background: #f1f1f1; }
+        main section.passwordHistory .tableContainer table::-webkit-scrollbar-thumb {
+          background: #888; }
 
 footer {
   text-align: center;

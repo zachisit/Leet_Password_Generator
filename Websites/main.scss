@@ -1,3 +1,11 @@
+@mixin transition($args...) {
+  -webkit-transition: $args;
+  -moz-transition: $args;
+  -ms-transition: $args;
+  -o-transition: $args;
+  transition: $args;
+}
+
 body {
   margin:0;
   padding:0;
@@ -10,6 +18,48 @@ main {
     display:block;
     margin:4em auto;
 
+    .copyAction {
+      display:block;
+      height:20px;
+
+      .copyPassword {
+        @include transition(500ms all ease);
+        background:white;
+        border:none;
+        color:#ccc;
+        padding:0.2em;
+        font-size:1.1em;
+        cursor:pointer;
+
+        &:hover {
+          color:#333;
+        }
+
+        &:focus {
+          @include transition(500ms all ease);
+          margin-top:-2px;
+          outline:none;
+        }
+      }
+
+      .fa-check {
+        color:#a5a0a0;
+        margin:0.1em 0 0 0.15em;
+        font-size:1em;
+
+        &.visible {
+          visibility:visible;
+          opacity:1;
+        }
+
+        &.hidden {
+          visibility:hidden;
+          opacity:0;
+          transition:visibility 0s 2s, opacity 2s linear;
+        }
+      }
+    }
+
     &.passwordGenerate {
       width:300px;
       padding:1em;
@@ -18,78 +68,160 @@ main {
       background:white;
       box-shadow:5px 5px black;
 
-      .createdPassword {
-        background:#f5f5f5;
-        padding:0.5em;
-        text-align:center;
-        font-size:2em;
-        font-weight:100;
-        font-family:"Courier New",sans-serif;
-        min-height:36px;
-        cursor:pointer;
-      }
+      .container {
+        position:relative;
 
-      .copyAction {
-        display:block;
-        height:20px;
+        .top {
+          position:absolute;
+          top:-49px;
+          right:-3px;
+        }
 
-        .copyPassword {
-          background:white;
-          border:none;
-          color:#ccc;
-          padding:0.2em;
-          font-size:1.1em;
+        .createdPassword {
+          background:#f5f5f5;
+          padding:0.5em;
+          text-align:center;
+          font-size:2em;
+          font-weight:100;
+          font-family:"Courier New",sans-serif;
+          min-height:36px;
           cursor:pointer;
-
-          &:hover {
-            color:#333;
-          }
         }
 
-        .fa-check {
-          color:#a5a0a0;
-          margin:0.1em 0 0 0.15em;
-          font-size:1em;
+        form {
+          display:block;
+          margin:2em 0 0 0;
 
-          &.visible {
-            visibility:visible;
-            opacity:1;
+          label {
+            font-family:sans-serif;
+            text-transform:uppercase;
+            font-weight:800;
+            font-size:0.6em;
+            vertical-align:top;
           }
 
-          &.hidden {
-            visibility:hidden;
-            opacity:0;
-            transition:visibility 0s 2s, opacity 2s linear;
+          select {
+            background:white;
+            border:1px solid #333;
+          }
+
+          button {
+            background:black;
+            color:white;
+            outline:none;
+            border:none;
+            float:right;
+            padding:0.5em;
+            cursor:pointer;
+            margin:-5px 0 0 0;
           }
         }
       }
+    }
 
-      form {
+    &.passwordHistory {
+      display:none;
+      position:absolute;
+      bottom:0;
+      right:1%;
+      background:white;
+      width:300px;
+      height:200px;
+
+      .menuAction {
+        position:relative;
         display:block;
-        margin:2em 0 0 0;
+        margin:0 0 0.5em 0;
+        height:10px;
 
-        label {
-          font-family:sans-serif;
-          text-transform:uppercase;
-          font-weight:800;
-          font-size:0.6em;
-          vertical-align:top;
-        }
-
-        select {
+        .visibleAction {
           background:white;
-          border:1px solid #333;
-        }
-
-        button {
-          background:black;
-          color:white;
           outline:none;
           border:none;
-          float:right;
-          padding:0.5em;
           cursor:pointer;
-          margin:-5px 0 0 0;
+          position:absolute;
+          top:0;
+          right:0;
+        }
+      }
+
+      .tableContainer {
+        height:180px;
+        max-height:180px;
+        overflow-y:scroll;
+        overflow-x:hidden;
+
+        table {
+          font-family:'Helvetica',sans-serif;
+          text-align:center;
+          color:#333;
+          position:relative;
+
+          thead {
+            font-size:0.8em;
+            font-weight:200;
+            width:100%;
+            background:white;
+
+            th {
+              position:sticky;
+              background:white;
+              top:0px;
+
+              &:nth-of-type(1), &:nth-of-type(2) {
+                width:15%;
+              }
+
+              &:nth-of-type(3) {
+                width:59%;
+              }
+
+              &:nth-of-type(4) {
+                width:10%;
+              }
+            }
+          }
+
+          tbody {
+            font-size:0.7em;
+
+            tr {
+              border-bottom:1px solid #e4e4e4;
+
+              td {
+                padding:0.5em;
+
+                &:nth-of-type(1), &:nth-of-type(2) {
+                  width:15%;
+                }
+
+                &:nth-of-type(3) {
+                  width:59%;
+                  font-family:"Courier New",sans-serif;
+                }
+
+                &:nth-of-type(4) {
+                  width:10%;
+                }
+              }
+
+              &:nth-of-type(even) {
+                background:#f3f3f3;
+              }
+            }
+          }
+
+          &::-webkit-scrollbar {
+            width: 10px;
+          }
+
+          &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            background: #888;
+          }
         }
       }
     }
