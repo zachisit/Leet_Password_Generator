@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Passwordington - Generate Secure Passwords</title>
+    <meta name="description"
+          content="Generate secure and 1337 Passwords">
+    <meta name="keywords"
+          content="password generator, 1337 password generator, IT password, create password">
+    <meta name="author"
+          content="Zach Smith">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+          type="text/css"
+          href="https://s3.amazonaws.com/www.passwordington.com/main.min.css"
+          charset="utf-8"/>
+    <script type="text/javascript"
+            src="https://s3.amazonaws.com/www.passwordington.com/Interface.js"></script>
+    <script type="text/javascript">
+        Interface = new GeneratePassword();
+    </script>
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+          crossorigin="anonymous">
+    <link rel="apple-touch-icon"
+          sizes="180x180"
+          href="https://s3.amazonaws.com/www.passwordington.com/meta-icons/apple-touch-icon.png">
+    <link rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="https://s3.amazonaws.com/www.passwordington.com/meta-icons/favicon-32x32.png">
+    <link rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="https://s3.amazonaws.com/www.passwordington.com/meta-icons/favicon-16x16.png">
+    <link rel="manifest"
+          href="https://s3.amazonaws.com/www.passwordington.com/site.webmanifest">
+    <link rel="mask-icon"
+          href="https://s3.amazonaws.com/www.passwordington.com/meta-icons/safari-pinned-tab.svg"
+          color="#5bbad5">
+    <meta name="msapplication-TileColor"
+          content="#da532c">
+    <meta name="msapplication-TileImage"
+          content="/mstile-144x144.png">
+    <meta name="theme-color"
+          content="#ffffff">
+    <!-- ZRS v1.1.6 -->
+    <!-- beta launch 2019/05/02 -->
+</head>
+<body>
+<main>
+    <div id="explainer"
+         class="overlay">
+        <div class="popup">
+            <a class="close"
+               href="#"
+            >&times;</a>
+            <div class="content">
+                <p><i>Passwordington</i> is a true gender-neutral professional when providing to you high quality passwords. Rest assured that the passwords provided to you are 100% passwords.</p>
+            </div>
+        </div>
+    </div>
+    <section class="passwordGenerate">
+        <div class="container">
+            <div class="top">
+                <a class="button"
+                   href="#explainer"
+                ><img src="tophat.png"
+                      alt="top top" /></a>
+            </div>
+            <div class="createdPassword"
+                 data-action="copyPassword"
+                 data-pass="b0063r!pudd1n6"
+                 title="Copy To Clipboard"
+                 tabindex="4"
+            >b0063r!pudd1n6</div>
+            <div class="copyAction">
+                <button title="Copy"
+                        class="copyPassword"
+                        data-action="copyPassword"
+                        tabindex="3"
+                ><i class="far fa-copy"></i></button>
+                <i class="fas fa-check hidden"></i>
+            </div>
+            <form class="passGenForm">
+                <label for="type">Type</label>
+                <select name="type"
+                        id="type"
+                        tabindex="1">
+                    <option value="complex">complex</option>
+                    <option value="leet">leet</option>
+                </select>
+                <button title="Create Password"
+                        data-action="generatePassword"
+                        tabindex="2"
+                >Create Passwordington</button>
+            </form>
+        </div>
+    </section>
+    <section class="passwordHistory"
+             data-opentype="open">
+        <div class="menuAction">
+            <button class="visibleAction"
+                    title="Close Menu"
+                    data-action="passwordHistoryMenuAction"
+            ><i class="fa fa-chevron-down passwordHistoryChevron"></i>
+            </button>
+        </div>
+        <div class="tableContainer">
+            <table class="passwordHistoryList">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Password</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody class="passwordHistoryBody"><!-- --></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<!-- Global site tag (gtag.js) - Google Analytics - added 5/1/2019 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-139410397-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-139410397-1');
+</script>
+
+</body>
+</html>
