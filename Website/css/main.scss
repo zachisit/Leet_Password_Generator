@@ -63,7 +63,7 @@ main {
     }
 
     &.passwordGenerate {
-      width:352px;
+      width:405px;
       padding:1em;
       margin:4em auto;
       display:block;
@@ -75,8 +75,12 @@ main {
 
         .top {
           position:absolute;
-          top:-49px;
-          right:-3px;
+          top:-65px;
+          right:-13px;
+
+          img {
+            width:70px;
+          }
         }
 
         .createdPassword {

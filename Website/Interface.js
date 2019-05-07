@@ -122,6 +122,7 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
     //build password history
     this.recordPasswordHistory();
 
+    console.log(typeSelected +' is the type selected')
     this.callGenericBackend(
         'POST',
         'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnLeetString-API',
