@@ -1,16 +1,49 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Passwordington - Generate Secure Passwords</title>
     <meta name="description"
-          content="Generate secure and 1337 Passwords">
+          content="Generate secure and 1337 Passwords"/>
     <meta name="keywords"
-          content="password generator, 1337 password generator, IT password, create password">
+          content="password generator, 1337 password generator, Information Technology passwords, password creator, make password, IT password, create password"/>
     <meta name="author"
-          content="Zach Smith">
+          content="Zach Smith, zach@zachis.it"/>
+    <meta name="subject"
+          content="Website for generating passwords"/>
+    <meta name="copyright"
+          content="zachis.it"/>
+    <meta name="language"
+          content="ES"/>
+    <meta name="robots"
+          content="index,follow"/>
+    <meta name="summary"
+          content="Generate secure and 1337 Passwords"/>
+    <meta name="Classification"
+          content="Information Technology"/>
+    <meta name="designer"
+          content="Zach Smith, zach@zachis.it"/>
+    <meta name="copyright"
+          content="2019"/>
+    <meta name="reply-to"
+          content="zach@zachis.it"/>
+    <meta name="owner"
+          content="zachis.it"/>
+    <meta name="url"
+          content="https://www.passwordington"/>
+    <meta name="identifier-URL"
+          content="https://www.passwordington"/>
+    <meta name="category"
+          content="Information Technology"/>
+    <meta name="coverage"
+          content="Worldwide"/>
+    <meta name="distribution"
+          content="Global"/>
+    <meta name="rating"
+          content="General"/>
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+          content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet"
           type="text/css"
           href="https://s3.amazonaws.com/www.passwordington.com/main.min.css"
@@ -57,8 +90,11 @@
           content="Passwordington is a true gender-neutral professional when providing to you high quality passwords. Rest assured that the passwords provided to you are 100% passwords, tested to the highest quality.">
     <meta name="twitter:image"
           content="https://s3.amazonaws.com/www.passwordington.com/top-hat.svg">
-    <!-- ZRS v1.1.7 -->
-    <!-- beta launch 2019/05/02 -->
+    <!-- custom application meta -->
+    <meta name="pg_BetaLaunchNumber"
+          content="2019-05-02"/>
+    <meta name="pg_VersionNumber"
+          content="1.1.8"/>
 </head>
 <body>
 <main>
@@ -69,6 +105,10 @@
                href="#"
             >&times;</a>
             <div class="content">
+                <p class="topLogo">
+                    <img src="https://s3.amazonaws.com/www.passwordington.com/top-hat.svg"
+                         alt="top hat icon" />
+                </p>
                 <p>
                     <i>Passwordington</i> is a true gender-neutral professional when providing to you high quality passwords. Rest assured that the passwords provided to you are 100% passwords, tested to the highest quality.
                 </p>
@@ -111,6 +151,7 @@
                 <button title="Create Password"
                         data-action="generatePassword"
                         tabindex="2"
+                        class="generateButton"
                 >Create Passwordington</button>
             </form>
         </div>
@@ -137,6 +178,29 @@
             </table>
         </div>
     </section>
+    <footer>
+        <a href="#credits"
+           title="Credits"
+        ><i class="fas fa-cat"
+            title="Credits"></i></a>
+    </footer>
+    <div id="credits"
+         class="overlay">
+        <div class="popup">
+            <a class="close"
+               href="#"
+            >&times;</a>
+            <div class="content">
+                <p class="topLogo">
+                    <img src="https://s3.amazonaws.com/www.passwordington.com/top-hat.svg"
+                         alt="top hat icon" />
+                </p>
+                <p>
+                    <i>Passwordington</i> is the result of a side project by <a href="https://www.himynameiszachsmithandiamasoftwaredeveloperfromkentucky.com" title="Zachary Smith software developer website" target="_blank">Zach Smith</a> - <a href="https://twitter.com/zachisit" title="Zachary Smith twitter" target="_blank">@zachisit</a>. Site is hosted via an AWS s3 bucket, powered by an AWS Lambda FAAS written in Python, connected via an AWS API endpoint. Fun times. This site has been beta for <span class="betaDayCount"></span> days.
+                </p>
+            </div>
+        </div>
+    </div>
 </main>
 <!-- Global site tag (gtag.js) - Google Analytics - added 5/1/2019 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139410397-1"></script>

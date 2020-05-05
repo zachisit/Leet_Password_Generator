@@ -4,7 +4,7 @@
  * This file should be included on interface pages that make use of the generalized interface
  *
  * @author Zachary Smith
- * @version 1.0.15
+ * @version 1.0.17
  * @package GeneratePassword
  */
 
@@ -50,7 +50,8 @@ function GeneratePassword(){
  * @param self
  */
 GeneratePassword.prototype.init = function(self){
-    console.log('initializing GeneratePassword v1.0.15');
+    console.log('starting PasswordGenerator site v'+this.returnVersionMetaValue());
+    console.log('initializing GeneratePassword Interface v1.0.17');
     var self = this;
 
     document.body.addEventListener('click', this);
@@ -61,6 +62,22 @@ GeneratePassword.prototype.init = function(self){
     this.typeSelected = document.getElementById('type');
     this.copyIcon = document.getElementsByClassName('copyPassword')[0];
     this.passwordHistoryBlock = document.getElementsByClassName('passwordHistory')[0];
+    this.daysCharCount = document.getElementsByClassName('betaDayCount')[0];
+
+    this.triggerPassClick();
+    this.paintDaysSinceBeta();
+};
+
+GeneratePassword.prototype.paintDaysSinceBeta = function(self) {
+    this.daysCharCount.innerHTML = this.returnDaysSinceBeta();
+};
+
+/**
+ * Manually trigger button click action for generating password
+ *
+ */
+GeneratePassword.prototype.triggerPassClick = function() {
+    document.getElementsByClassName('generateButton')[0].click();
 };
 
 GeneratePassword.prototype.returnUserIP = function(self) {
@@ -81,10 +98,14 @@ GeneratePassword.prototype.setType = function(set) {
         case '1':
             this.generatedPasswordType = 'leet';
             break;
-            //no default
+        //no default
     }
 };
 
+/**
+ *
+ * @param self
+ */
 GeneratePassword.prototype.returnPassword = function(self) {
     console.log('Calling API to generate password');
     var self = this;
@@ -92,16 +113,22 @@ GeneratePassword.prototype.returnPassword = function(self) {
     self.callGenericBackend(
         'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnLeetString-API',
         JSON.stringify({
-        "passType": self.generatedPasswordType,
-        "IP": "19.2.121.122"
-    }))
+            "passType": self.generatedPasswordType,
+            "IP": "19.2.121.122"
+        }))
         .then(function(result){
-            console.log(result);
             self.generatedPassword = result
         });
 };
 
+/**
+ *
+ * @param self
+ * @param e
+ * @param el
+ */
 GeneratePassword.prototype.generatePassword = function(self,e,el) {
+    //if (e.target) { e.preventDefault() }
     e.preventDefault();
 
     var typeSelected = this.typeSelected[this.typeSelected.selectedIndex].value,
@@ -122,19 +149,19 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
     //build password history
     this.recordPasswordHistory();
 
-    console.log(typeSelected +' is the type selected')
+    //build return from api call
     this.callGenericBackend(
         'POST',
         'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnLeetString-API',
         JSON.stringify({"passType": typeSelected})
-        )
+    )
         .then(function(response){
             self.generatedPassword = response;
         })
         .then(function(){
             //paint to div
             self.generatedPasswordType = typeSelected;
-            self.creatPasswordContainer.innerHTML = self.generatedPassword;
+            self.creatPasswordContainer.textContent = self.generatedPassword;
             self.copyIcon.setAttribute('data-pass', self.generatedPassword);
             self.creatPasswordContainer.setAttribute('data-pass',self.generatedPassword);
             self.toggleCopyPassword('show');
@@ -153,7 +180,7 @@ GeneratePassword.prototype.recordPasswordHistory = function() {
     this.generatedPasswords.push({
         'time':timestamp,
         'type':this.generatedPasswordType,
-        'password':'yoink'
+        'password':this.generatedPassword
     });
 
     //password history ui
@@ -182,7 +209,8 @@ GeneratePassword.prototype.recordPasswordHistory = function() {
         copyButton.appendChild(copyButtonI);
         rowTr.appendChild(copyActionTd).appendChild(copyDiv).appendChild(copyButton);
 
-        table.appendChild(rowTr);
+        //table.appendChild(rowTr);
+        table.insertBefore(rowTr, table.firstChild);
     }
 };
 
@@ -258,6 +286,12 @@ GeneratePassword.prototype.copyPassword = function(self,e,el) {
     }, 900);
 };
 
+/**
+ *
+ * @param self
+ * @param e
+ * @param el
+ */
 GeneratePassword.prototype.passwordHistoryMenuAction = function(self,e,el) {
     console.log('passwordHistoryMenuAction')
     //@TODO: following vars would need to be from Interface:
@@ -283,7 +317,60 @@ GeneratePassword.prototype.passwordHistoryMenuAction = function(self,e,el) {
     }
 };
 
-/* -- Utility Methods -- */
+/**
+ * ---------------------------------------
+ * Utility Methods
+ * ----------------------------------------
+ */
+/**
+ *
+ * @returns {string[]}
+ */
+GeneratePassword.prototype.returnBetaDataArray = function() {
+    var d = this.returnLaunchMetaValue('pg_BetaLaunchNumber');
+    return d.split('-');
+};
+
+/**
+ *
+ * @returns {*}
+ */
+GeneratePassword.prototype.returnVersionMetaValue = function() {
+    return this.returnLaunchMetaValue('pg_VersionNumber');
+};
+
+/**
+ * Calcuate days since our beta launch
+ *
+ * @param self
+ * @returns {number}
+ */
+GeneratePassword.prototype.returnDaysSinceBeta = function(self) {
+    var oneDay = 24*60*60*1000,
+        dateArray = this.returnBetaDataArray(),
+        firstDate = new Date(dateArray[0],dateArray[1],dateArray[2]),
+        secondDate = new Date();
+
+    return Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+};
+
+/**
+ *
+ * @param metaName
+ * @returns {*}
+ */
+GeneratePassword.prototype.returnLaunchMetaValue = function(metaName) {
+    const metas = document.getElementsByTagName('meta');
+
+    for (let i = 0; i < metas.length; i++) {
+        if (metas[i].getAttribute('name') === metaName) {
+            return metas[i].getAttribute('content');
+        }
+    }
+
+    return '';
+};
+
 /**
  * Do Copy Utility
  * @param elementFrom
@@ -320,7 +407,7 @@ GeneratePassword.prototype.doKeyBinding = function(e) {
 GeneratePassword.prototype.handleEvent = function(e) {
     switch(e.type) {
         case 'click':
-        //case 'keypress':
+            //case 'keypress':
             this.doAction(e);
             break;
     }
