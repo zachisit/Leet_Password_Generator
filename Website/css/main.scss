@@ -63,7 +63,9 @@ main {
     }
 
     &.passwordGenerate {
-      width:405px;
+      @include transition(200ms all ease);
+      width:fit-content;
+      min-width:405px;
       padding:1em;
       margin:4em auto;
       display:block;
@@ -112,6 +114,10 @@ main {
             border:1px solid #333;
           }
 
+          .lengthContainer {
+            display:inline-block;
+          }
+
           button {
             @include transition(200ms all ease);
             background:black;
@@ -145,8 +151,6 @@ main {
       .menuAction {
         position:relative;
         display:block;
-        height:21px;
-        background:$blue;
 
         .visibleAction {
           background:white;
@@ -155,7 +159,7 @@ main {
           border:none;
           cursor:pointer;
           position:absolute;
-          top:0;
+          top:-20px;
           right:0;
           border-bottom:1px solid #a09f9f;
         }
@@ -255,6 +259,10 @@ footer {
   position:absolute;
   bottom:1%;
 
+  a {
+    color:#333;
+  }
+
   p {
     font-size:0.9em;
     font-style:italic;
@@ -348,9 +356,21 @@ footer {
 
       p {
         margin:0 0 1em 0;
-        line-height:1.4;
+        line-height:1.6;
         font-size:1em;
         font-family:"Helvetica",sans-serif;
+        text-align:center;
+
+        a {
+          color:black;
+        }
+
+        &.topLogo {
+
+          img {
+            width:70px;
+          }
+        }
 
         &:last-child {
           margin:0;
