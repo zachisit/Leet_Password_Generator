@@ -4,7 +4,7 @@
  * This file should be included on interface pages that make use of the generalized interface
  *
  * @author Zachary Smith
- * @version 1.0.17
+ * @version 1.0.19
  * @package GeneratePassword
  */
 
@@ -35,14 +35,11 @@ document.addEventListener("DOMContentLoaded", function(){
  * @constructor
  */
 function GeneratePassword(){
-    this.checkIcon = null;
-    this.creatPasswordContainer = null;
-    this.typeSelected = null;
-    this.copyIcon = null;
+    this.domElements = {};
     this.generatedPassword = 'b0063r!pudd1n6';
     this.generatedPasswordType = 'complex';
+    this.lengthSelected = null;
     this.generatedPasswords = [];
-    this.passwordHistoryBlock = null;
 }
 
 /**
@@ -51,33 +48,57 @@ function GeneratePassword(){
  */
 GeneratePassword.prototype.init = function(self){
     console.log('starting PasswordGenerator site v'+this.returnVersionMetaValue());
-    console.log('initializing GeneratePassword Interface v1.0.17');
+    console.log('initializing GeneratePassword Interface v1.0.19');
     var self = this;
 
     document.body.addEventListener('click', this);
 
-    //@TODO:refactor to pull dom from parent
-    this.checkIcon = document.getElementsByClassName('fa-check')[0];
-    this.creatPasswordContainer = document.getElementsByClassName('createdPassword')[0];
-    this.typeSelected = document.getElementById('type');
-    this.copyIcon = document.getElementsByClassName('copyPassword')[0];
-    this.passwordHistoryBlock = document.getElementsByClassName('passwordHistory')[0];
-    this.daysCharCount = document.getElementsByClassName('betaDayCount')[0];
+    this.domElements.generatedPasswordContainer = document.getElementsByClassName('passwordGenerate')[0];
+    this.domElements.creatPasswordContainer = this.domElements.generatedPasswordContainer.querySelectorAll('.createdPassword')[0];
+    this.domElements.daysCharCount = document.getElementsByClassName('betaDayCount')[0];
+    this.domElements.passwordHistoryBlock = document.getElementsByClassName('passwordHistory')[0];
+    this.domElements.lengthSelectContainer = this.domElements.generatedPasswordContainer.querySelectorAll('.lengthContainer')[0];
+    this.domElements.lengthSelect = this.domElements.lengthSelectContainer.querySelectorAll('#length')[0];
+    this.domElements.typeSelected = this.domElements.generatedPasswordContainer.querySelectorAll('#type')[0];
+    this.domElements.generateButton = this.domElements.generatedPasswordContainer.querySelectorAll('.generatePassword')[0];
+    this.domElements.checkIcon = this.domElements.generatedPasswordContainer.querySelectorAll('.fa-check')[0];
+    this.domElements.copyIcon = this.domElements.generatedPasswordContainer.querySelectorAll('.copyPassword')[0];
+
+    this.domElements.typeSelected.addEventListener('change',(e)=>self.typeUpdated());
 
     this.triggerPassClick();
     this.paintDaysSinceBeta();
 };
 
 GeneratePassword.prototype.paintDaysSinceBeta = function(self) {
-    this.daysCharCount.innerHTML = this.returnDaysSinceBeta();
+    this.domElements.daysCharCount.innerHTML = this.returnDaysSinceBeta();
+};
+
+/**
+ *
+ * @param self
+ */
+GeneratePassword.prototype.typeUpdated = function(self,e,el) {
+    console.log('typeUpdated')
+    console.log(this.returnTypeSelected())
+    console.log(this)
+    switch (this.returnTypeSelected()) {
+        case 'leet':
+            this.domElements.lengthSelectContainer.style.display = 'none';
+            this.lengthSelected = null;
+            break;
+        case 'complex':
+            this.domElements.lengthSelectContainer.style.display = 'inline-block';
+            break;
+    }
 };
 
 /**
  * Manually trigger button click action for generating password
  *
  */
-GeneratePassword.prototype.triggerPassClick = function() {
-    document.getElementsByClassName('generateButton')[0].click();
+GeneratePassword.prototype.triggerPassClick = function(self) {
+    this.generatePassword();
 };
 
 GeneratePassword.prototype.returnUserIP = function(self) {
@@ -86,25 +107,29 @@ GeneratePassword.prototype.returnUserIP = function(self) {
 };
 
 /**
- * Set Type string from select option value
  *
- * @param set
+ * @param self
  */
-GeneratePassword.prototype.setType = function(set) {
-    switch (this.typeSelected.value) {
-        case '0':
-            this.generatedPasswordType = 'complex';
-            break;
-        case '1':
-            this.generatedPasswordType = 'leet';
-            break;
-        //no default
-    }
+GeneratePassword.prototype.returnTypeSelected = function(self) {
+    return this.domElements.typeSelected[this.domElements.typeSelected.selectedIndex].value;
 };
 
 /**
  *
  * @param self
+ */
+GeneratePassword.prototype.setTypeSelected = function(self) {
+    this.generatedPasswordType = this.returnTypeSelected();
+};
+
+GeneratePassword.prototype.setLengthSelected = function() {
+    this.lengthSelected = Number(this.domElements.lengthSelect.value);
+};
+
+/**
+ *
+ * @param self
+ * @deprecated
  */
 GeneratePassword.prototype.returnPassword = function(self) {
     console.log('Calling API to generate password');
@@ -121,6 +146,16 @@ GeneratePassword.prototype.returnPassword = function(self) {
         });
 };
 
+GeneratePassword.prototype.returnPollyS3URL = function(self) {
+    this.callGenericBackend(
+        'POST',
+        'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnStringFromPollyIntoS3-API',
+        JSON.stringify({
+            'password': 'z is testing'
+        })
+    )
+};
+
 /**
  *
  * @param self
@@ -128,23 +163,26 @@ GeneratePassword.prototype.returnPassword = function(self) {
  * @param el
  */
 GeneratePassword.prototype.generatePassword = function(self,e,el) {
-    //if (e.target) { e.preventDefault() }
-    e.preventDefault();
+    if (el) { e.preventDefault() }
 
-    var typeSelected = this.typeSelected[this.typeSelected.selectedIndex].value,
-        self = this;
+    var self = this;
 
     //remove current text
-    this.creatPasswordContainer.innerHTML = '';
+    this.domElements.creatPasswordContainer.innerHTML = '';
 
     //show fontawesome spinning icon
     var waitIcon = document.createElement('i');
     waitIcon.classList.add('fa','fa-spinner', 'fa-spin');
-    this.creatPasswordContainer.appendChild(waitIcon);
+    this.domElements.creatPasswordContainer.appendChild(waitIcon);
     this.toggleCopyPassword('hide');
 
     //set type
-    this.setType();
+    this.setTypeSelected();
+
+    //@TODO:change to getTypeSelected
+    if (this.generatedPasswordType === 'complex') {
+        this.setLengthSelected();
+    }
 
     //build password history
     this.recordPasswordHistory();
@@ -153,22 +191,26 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
     this.callGenericBackend(
         'POST',
         'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnLeetString-API',
-        JSON.stringify({"passType": typeSelected})
+        JSON.stringify({
+            'passType': this.generatedPasswordType,
+            'passLength': this.lengthSelected
+        })
     )
         .then(function(response){
             self.generatedPassword = response;
         })
         .then(function(){
             //paint to div
-            self.generatedPasswordType = typeSelected;
-            self.creatPasswordContainer.textContent = self.generatedPassword;
-            self.copyIcon.setAttribute('data-pass', self.generatedPassword);
-            self.creatPasswordContainer.setAttribute('data-pass',self.generatedPassword);
+            //self.generatedPasswordType = typeSelected;
+            self.domElements.creatPasswordContainer.textContent = self.generatedPassword;
+            self.domElements.copyIcon.setAttribute('data-pass', self.generatedPassword);
+            self.domElements.creatPasswordContainer.setAttribute('data-pass',self.generatedPassword);
             self.toggleCopyPassword('show');
         })
-        .then(function(){
-            ga('send', 'event', 'Action Clicks', 'click', 'Generate Password');
-        })
+    // .then(function(){
+    //     ga('send', 'event', 'Action Clicks', 'click', 'Generate Password');
+    // })
+    console.log(this)
 };
 
 GeneratePassword.prototype.recordPasswordHistory = function() {
@@ -180,7 +222,8 @@ GeneratePassword.prototype.recordPasswordHistory = function() {
     this.generatedPasswords.push({
         'time':timestamp,
         'type':this.generatedPasswordType,
-        'password':this.generatedPassword
+        'password':this.generatedPassword,
+        'length':this.lengthSelected
     });
 
     //password history ui
@@ -232,7 +275,7 @@ GeneratePassword.prototype.toggleCopyPassword = function(type) {
             break;
     }
 
-    return this.copyIcon.style.display = styleResult;
+    return this.domElements.copyIcon.style.display = styleResult;
 };
 
 /**
@@ -249,15 +292,15 @@ GeneratePassword.prototype.toggleCheckMark = function(type) {
     switch (type) {
         case 'show':
             //styleResult = 'inline-block';
-            styleResult = self.checkIcon.classList = 'fas fa-check visible';
+            styleResult = self.domElements.checkIcon.classList = 'fas fa-check visible';
             break;
         case 'hide':
             //styleResult = 'none';
-            styleResult = self.checkIcon.classList = 'fas fa-check hidden';
+            styleResult = self.domElements.checkIcon.classList = 'fas fa-check hidden';
             break;
     }
 
-    return this.checkIcon.style.display = styleResult;
+    return this.domElements.checkIcon.style.display = styleResult;
 };
 
 /**
@@ -273,7 +316,7 @@ GeneratePassword.prototype.copyPassword = function(self,e,el) {
         copyElement = null;
 
     if (e.target.classList[0] === 'createdPassword') {
-        copyElement = self.creatPasswordContainer.getAttribute('data-pass');
+        copyElement = self.domElements.creatPasswordContainer.getAttribute('data-pass');
     } else {
         copyElement = e.target.parentNode.getAttribute('data-pass');
     }
@@ -296,22 +339,22 @@ GeneratePassword.prototype.passwordHistoryMenuAction = function(self,e,el) {
     console.log('passwordHistoryMenuAction')
     //@TODO: following vars would need to be from Interface:
     var table = document.getElementsByClassName('tableContainer')[0],
-        openStatus = this.passwordHistoryBlock.dataset.opentype,
+        openStatus = this.domElements.passwordHistoryBlock.dataset.opentype,
         passIcon = document.getElementsByClassName('passwordHistoryChevron')[0];
 
     switch (openStatus) {
         case 'open':
             //we should close
             table.style.display = 'none';
-            this.passwordHistoryBlock.style.height = '20px';
-            this.passwordHistoryBlock.dataset.opentype = 'closed';
+            this.domElements.passwordHistoryBlock.style.height = '20px';
+            this.domElements.passwordHistoryBlock.dataset.opentype = 'closed';
             passIcon.classList = 'fa fa-chevron-up passwordHistoryChevron';
             break;
         case 'closed':
             //we should open
             table.style.display = 'block';
-            this.passwordHistoryBlock.style.height = 'auto';
-            this.passwordHistoryBlock.dataset.opentype = 'open';
+            this.domElements.passwordHistoryBlock.style.height = 'auto';
+            this.domElements.passwordHistoryBlock.dataset.opentype = 'open';
             passIcon.classList = 'fa fa-chevron-down passwordHistoryChevron';
             break;
     }
@@ -343,7 +386,7 @@ GeneratePassword.prototype.returnVersionMetaValue = function() {
  * Calcuate days since our beta launch
  *
  * @param self
- * @returns {number}
+ * @returns {string}
  */
 GeneratePassword.prototype.returnDaysSinceBeta = function(self) {
     var oneDay = 24*60*60*1000,
@@ -351,7 +394,7 @@ GeneratePassword.prototype.returnDaysSinceBeta = function(self) {
         firstDate = new Date(dateArray[0],dateArray[1],dateArray[2]),
         secondDate = new Date();
 
-    return Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+    return toString(Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay))));
 };
 
 /**
@@ -512,7 +555,7 @@ GeneratePassword.prototype.callGenericBackend = function(method, endpoint, postD
             if (xhr.readyState === 4 && xhr.status === 200) {
                 try {
                     var json = JSON.parse(xhr.responseText);
-                    //console.info(json);
+                    console.info(json);
                     resolve(json);
                 } catch (exception) { //data is not json encoded
                     resolve (xhr.responseText);
