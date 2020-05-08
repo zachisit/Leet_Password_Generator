@@ -4,7 +4,7 @@
  * This file should be included on interface pages that make use of the generalized interface
  *
  * @author Zachary Smith
- * @version 1.0.18
+ * @version 1.0.19
  * @package GeneratePassword
  */
 
@@ -48,7 +48,7 @@ function GeneratePassword(){
  */
 GeneratePassword.prototype.init = function(self){
     console.log('starting PasswordGenerator site v'+this.returnVersionMetaValue());
-    console.log('initializing GeneratePassword Interface v1.0.18');
+    console.log('initializing GeneratePassword Interface v1.0.19');
     var self = this;
 
     document.body.addEventListener('click', this);
@@ -64,6 +64,8 @@ GeneratePassword.prototype.init = function(self){
     this.domElements.checkIcon = this.domElements.generatedPasswordContainer.querySelectorAll('.fa-check')[0];
     this.domElements.copyIcon = this.domElements.generatedPasswordContainer.querySelectorAll('.copyPassword')[0];
 
+    this.domElements.typeSelected.addEventListener('change',(e)=>self.typeUpdated());
+
     this.triggerPassClick();
     this.paintDaysSinceBeta();
 };
@@ -77,6 +79,9 @@ GeneratePassword.prototype.paintDaysSinceBeta = function(self) {
  * @param self
  */
 GeneratePassword.prototype.typeUpdated = function(self,e,el) {
+    console.log('typeUpdated')
+    console.log(this.returnTypeSelected())
+    console.log(this)
     switch (this.returnTypeSelected()) {
         case 'leet':
             this.domElements.lengthSelectContainer.style.display = 'none';
@@ -139,6 +144,16 @@ GeneratePassword.prototype.returnPassword = function(self) {
         .then(function(result){
             self.generatedPassword = result
         });
+};
+
+GeneratePassword.prototype.returnPollyS3URL = function(self) {
+    this.callGenericBackend(
+        'POST',
+        'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnStringFromPollyIntoS3-API',
+        JSON.stringify({
+            'password': 'z is testing'
+        })
+    )
 };
 
 /**
@@ -540,7 +555,7 @@ GeneratePassword.prototype.callGenericBackend = function(method, endpoint, postD
             if (xhr.readyState === 4 && xhr.status === 200) {
                 try {
                     var json = JSON.parse(xhr.responseText);
-                    //console.info(json);
+                    console.info(json);
                     resolve(json);
                 } catch (exception) { //data is not json encoded
                     resolve (xhr.responseText);
