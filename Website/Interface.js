@@ -53,6 +53,15 @@ GeneratePassword.prototype.init = function(self){
 
     document.body.addEventListener('click', this);
 
+    this.assignDomElements();
+    this.generatePassword();
+    this.paintDaysSinceBeta();
+
+    this.domElements.typeSelected.addEventListener('change',(e)=>self.typeUpdated());
+console.log('hi')
+};
+
+GeneratePassword.prototype.assignDomElements = function(self) {
     this.domElements.generatedPasswordContainer = document.getElementsByClassName('passwordGenerate')[0];
     this.domElements.creatPasswordContainer = this.domElements.generatedPasswordContainer.querySelectorAll('.createdPassword')[0];
     this.domElements.daysCharCount = document.getElementsByClassName('betaDayCount')[0];
@@ -63,14 +72,11 @@ GeneratePassword.prototype.init = function(self){
     this.domElements.generateButton = this.domElements.generatedPasswordContainer.querySelectorAll('.generatePassword')[0];
     this.domElements.checkIcon = this.domElements.generatedPasswordContainer.querySelectorAll('.fa-check')[0];
     this.domElements.copyIcon = this.domElements.generatedPasswordContainer.querySelectorAll('.copyPassword')[0];
-
-    this.domElements.typeSelected.addEventListener('change',(e)=>self.typeUpdated());
-
-    this.triggerPassClick();
-    this.paintDaysSinceBeta();
+    this.domElements.audioTrigger = this.domElements.generatedPasswordContainer.querySelectorAll('.audioAction')[0];
 };
 
 GeneratePassword.prototype.paintDaysSinceBeta = function(self) {
+    console.log(this.returnDaysSinceBeta())
     this.domElements.daysCharCount.innerHTML = this.returnDaysSinceBeta();
 };
 
@@ -79,9 +85,6 @@ GeneratePassword.prototype.paintDaysSinceBeta = function(self) {
  * @param self
  */
 GeneratePassword.prototype.typeUpdated = function(self,e,el) {
-    console.log('typeUpdated')
-    console.log(this.returnTypeSelected())
-    console.log(this)
     switch (this.returnTypeSelected()) {
         case 'leet':
             this.domElements.lengthSelectContainer.style.display = 'none';
@@ -93,13 +96,6 @@ GeneratePassword.prototype.typeUpdated = function(self,e,el) {
     }
 };
 
-/**
- * Manually trigger button click action for generating password
- *
- */
-GeneratePassword.prototype.triggerPassClick = function(self) {
-    this.generatePassword();
-};
 
 GeneratePassword.prototype.returnUserIP = function(self) {
     //@TODO
@@ -137,23 +133,102 @@ GeneratePassword.prototype.returnPassword = function(self) {
 
     self.callGenericBackend(
         'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnLeetString-API',
-        JSON.stringify({
+        {
             "passType": self.generatedPasswordType,
             "IP": "19.2.121.122"
-        }))
+        })
         .then(function(result){
             self.generatedPassword = result
         });
 };
 
-GeneratePassword.prototype.returnPollyS3URL = function(self) {
+/**
+ * Calls vendor api endpoint that upticks a version counter
+ * Set up since 2020/05/10
+ *
+ * @param self
+ */
+GeneratePassword.prototype.upTickeButtonClick = function(self) {
     this.callGenericBackend(
-        'POST',
-        'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnStringFromPollyIntoS3-API',
-        JSON.stringify({
-            'password': 'z is testing'
-        })
+        'GET',
+        'https://api.countapi.xyz/hit/passwordington.com/hits'
     )
+        .then((response)=>{
+            console.warn('the total passwords returned is now '+response.value);
+        })
+    // .then(()=>{
+    //     this.callGenericBackend('GET',)
+    // })
+};
+
+GeneratePassword.prototype.returnPollyS3URL = function(self,e,el) {
+    // this.callGenericBackend(
+    //     'POST',
+    //     'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnStringFromPollyIntoS3-API',
+    //     JSON.stringify({
+    //         'password': 'z is testing'
+    //     })
+    // )
+    //     .then(function(response){
+    //         //@TODO:return filename url and other data
+    //     })
+
+};
+
+GeneratePassword.prototype.showAudioIcon = function(self,e,el) {
+    this.domElements.audioTrigger.classList.remove('noDisplay');
+};
+
+GeneratePassword.prototype.generateAudioPopup = function(self,e,el) {
+    const popupOverlay = document.createElement('div');
+    const popup = document.createElement('div');
+    const popupContent = document.createElement('div');
+    const messageP = document.createElement('p');
+    const buttonTrigger = document.createElement('button');
+
+    popupOverlay.setAttribute('id','audioFilenamePopup');
+    popupOverlay.classList.add('overlay','active');
+    popup.classList.add('popup');
+    popupContent.classList.add('content');
+    messageP.classList.add('buttonClickHelperMessage');
+    messageP.innerText = 'To generate an audio file for your password, please start below';
+    buttonTrigger.classList.add('styleActionButton');
+    buttonTrigger.setAttribute('data-action','generateAudioFile');
+    buttonTrigger.innerText = 'Generate my ding dang audio file!';
+
+    popupOverlay.appendChild(popup).appendChild(popupContent);
+    popupContent.appendChild(messageP);
+    popupContent.appendChild(buttonTrigger);
+    document.body.appendChild(popupOverlay);
+    this.domElements.audioPopup = document.getElementById('audioFilenamePopup');
+};
+
+GeneratePassword.prototype.generateAudioFile = function(self,e,el) {
+
+    //this.returnPollyS3URL()
+    console.log(e.target)
+    const clickedButton = el;
+    const loadingIcon = document.createElement('i');
+
+    loadingIcon.classList.add('fa','fa-spinner', 'fa-spin');
+    clickedButton.after(loadingIcon);
+    clickedButton.remove();
+
+    //@TODO if success
+    //if () {
+        this.domElements.audioPopup.querySelectorAll('.buttonClickHelperMessage')[0].innerText = 'Error';
+    //} else {
+        this.domElements.audioPopup.querySelectorAll('.buttonClickHelperMessage')[0].innerText = 'Below is your fully validated and confirmed file for your password. Make sure to save the file in a safe place. This file will be removed from our servers within a few hours.';
+        const audioElement = document.createElement('audio');
+        const audioHolder = document.createElement('p');
+
+        audioElement.src = "http://soundbible.com/mp3/cartoon-birds-2_daniel-simion.mp3";
+        audioElement.setAttribute('controls',true);
+        audioElement.classList.add('audioPlayer');
+        audioHolder.appendChild(audioElement);
+        loadingIcon.after(audioHolder);
+        loadingIcon.remove();
+    //}
 };
 
 /**
@@ -191,15 +266,15 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
     this.callGenericBackend(
         'POST',
         'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnLeetString-API',
-        JSON.stringify({
+        {
             'passType': this.generatedPasswordType,
             'passLength': this.lengthSelected
-        })
+        }
     )
-        .then(function(response){
+        .then((response)=>{
             self.generatedPassword = response;
         })
-        .then(function(){
+        .then(()=>{
             //paint to div
             //self.generatedPasswordType = typeSelected;
             self.domElements.creatPasswordContainer.textContent = self.generatedPassword;
@@ -207,10 +282,11 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
             self.domElements.creatPasswordContainer.setAttribute('data-pass',self.generatedPassword);
             self.toggleCopyPassword('show');
         })
+        .then(self.upTickeButtonClick())
+        .then(()=>self.showAudioIcon());
     // .then(function(){
     //     ga('send', 'event', 'Action Clicks', 'click', 'Generate Password');
     // })
-    console.log(this)
 };
 
 GeneratePassword.prototype.recordPasswordHistory = function() {
@@ -394,7 +470,7 @@ GeneratePassword.prototype.returnDaysSinceBeta = function(self) {
         firstDate = new Date(dateArray[0],dateArray[1],dateArray[2]),
         secondDate = new Date();
 
-    return toString(Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay))));
+    return Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
 };
 
 /**
@@ -540,14 +616,14 @@ GeneratePassword.prototype._getContextData = function(el){
  */
 GeneratePassword.prototype.callGenericBackend = function(method, endpoint, postData) {
     var xhr = new XMLHttpRequest();
-    postData = postData ? postData : {};
+    postData = postData ? JSON.stringify(postData) : {};
 
     xhr.open(
         method,
         endpoint,
         true
     );
-    xhr.setRequestHeader("Content-Type", "application/json");
+    //xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(postData);
 
     return new Promise(function(resolve, reject) {
@@ -558,10 +634,12 @@ GeneratePassword.prototype.callGenericBackend = function(method, endpoint, postD
                     console.info(json);
                     resolve(json);
                 } catch (exception) { //data is not json encoded
+                    console.warn(exception)
                     resolve (xhr.responseText);
                 }
 
             } else if (xhr.status >= 400){
+                console.warn('rejection')
                 reject(xhr);
             }
         };
