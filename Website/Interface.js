@@ -148,37 +148,42 @@ GeneratePassword.prototype.returnPassword = function(self) {
  *
  * @param self
  */
-GeneratePassword.prototype.upTickeButtonClick = function(self) {
+GeneratePassword.prototype.passwordIAASUptick = function(self) {
     this.callGenericBackend(
         'GET',
-        'https://api.countapi.xyz/hit/passwordington.com/hits'
+        'https://api.countapi.xyz/hit/passwordington.com/password'
     )
         .then((response)=>{
             console.warn('the total passwords returned is now '+response.value);
         })
-    // .then(()=>{
-    //     this.callGenericBackend('GET',)
-    // })
+};
+/**
+ * Calls vendor api endpoint that upticks a version counter
+ * Set up since 2020/05/10
+ *
+ * @param self
+ */
+GeneratePassword.prototype.audiofileIAASUptick = function(self) {
+    this.callGenericBackend(
+        'GET',
+        'https://api.countapi.xyz/hit/passwordington.com/audiofile'
+    )
+        .then((response)=>{
+            console.warn('the total passwords returned is now '+response.value);
+        })
 };
 
-GeneratePassword.prototype.returnPollyS3URL = function(self,e,el) {
-    // this.callGenericBackend(
-    //     'POST',
-    //     'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnStringFromPollyIntoS3-API',
-    //     JSON.stringify({
-    //         'password': 'z is testing'
-    //     })
-    // )
-    //     .then(function(response){
-    //         //@TODO:return filename url and other data
-    //     })
-
-};
 
 GeneratePassword.prototype.showAudioIcon = function(self,e,el) {
     this.domElements.audioTrigger.classList.remove('noDisplay');
 };
 
+/**
+ * @deprecated
+ * @param self
+ * @param e
+ * @param el
+ */
 GeneratePassword.prototype.generateAudioPopup = function(self,e,el) {
     const popupOverlay = document.createElement('div');
     const popup = document.createElement('div');
@@ -203,32 +208,93 @@ GeneratePassword.prototype.generateAudioPopup = function(self,e,el) {
     this.domElements.audioPopup = document.getElementById('audioFilenamePopup');
 };
 
+/**
+ *
+ * @param popupName
+ */
+GeneratePassword.prototype.generatePopup = function(popupName) {
+    const popupOverlay = document.createElement('div');
+    const popup = document.createElement('div');
+    const popupContent = document.createElement('div');
+    const close = document.createElement('a');
+
+    popupOverlay.setAttribute('id',popupName);
+    popupOverlay.classList.add('overlay','active');
+    popup.classList.add('popup');
+    popupContent.classList.add('content');
+    close.classList.add('close');
+    close.innerHTML = '&times;';
+    close.setAttribute('href','#');
+    close.setAttribute('data-action','closePopup');
+
+    popupOverlay.appendChild(popup).appendChild(close);
+    popup.appendChild(popupContent);
+    document.body.appendChild(popupOverlay);
+    this.domElements.generalPopup = document.getElementById(popupName);
+};
+
+GeneratePassword.prototype.closePopup = function(){
+    this.domElements.generalPopup.remove();
+};
+
 GeneratePassword.prototype.generateAudioFile = function(self,e,el) {
+    this.generatePopup('audioPopup');
 
-    //this.returnPollyS3URL()
-    console.log(e.target)
-    const clickedButton = el;
     const loadingIcon = document.createElement('i');
+    const messageP = document.createElement('p');
+    const newContainer = document.createElement('div');
 
+    newContainer.classList.add('audioContainer');
     loadingIcon.classList.add('fa','fa-spinner', 'fa-spin');
-    clickedButton.after(loadingIcon);
-    clickedButton.remove();
+    messageP.innerText = 'Please hold while I generate your password audio file.';
 
-    //@TODO if success
-    //if () {
-        this.domElements.audioPopup.querySelectorAll('.buttonClickHelperMessage')[0].innerText = 'Error';
-    //} else {
-        this.domElements.audioPopup.querySelectorAll('.buttonClickHelperMessage')[0].innerText = 'Below is your fully validated and confirmed file for your password. Make sure to save the file in a safe place. This file will be removed from our servers within a few hours.';
-        const audioElement = document.createElement('audio');
-        const audioHolder = document.createElement('p');
+    newContainer.appendChild(messageP);
+    newContainer.appendChild(loadingIcon);
 
-        audioElement.src = "http://soundbible.com/mp3/cartoon-birds-2_daniel-simion.mp3";
-        audioElement.setAttribute('controls',true);
-        audioElement.classList.add('audioPlayer');
-        audioHolder.appendChild(audioElement);
-        loadingIcon.after(audioHolder);
-        loadingIcon.remove();
+    this.domElements.generalPopup.getElementsByClassName('content')[0].appendChild(newContainer);
+
+    this.callGenericBackend(
+        'POST',
+        'https://ap9fgfxtp9.execute-api.us-east-1.amazonaws.com/default/ReturnStringFromPollyIntoS3-API',
+        {
+            'password': this.generatedPassword
+        }
+    )
+        .then((response)=>{
+            audioFilename = response;
+            this.showAudioFileHTML(newContainer,audioFilename);
+    })
+    .then(()=>{
+        this.audiofileIAASUptick();
+    })
+
     //}
+};
+
+GeneratePassword.prototype.showAudioFileHTML = function(popupObject,fileURL){
+    const messageP = document.createElement('p');
+    const audioElement = document.createElement('audio');
+    const audioHolder = document.createElement('p');
+
+    messageP.innerText = 'Below is your fully validated and confirmed file for your password. Make sure to save the file in a safe place. This file will be removed from our servers within a few hours.';
+    audioElement.src = fileURL;
+    audioElement.controls = true;
+    audioElement.autoplay = true;
+    audioElement.classList.add('audioPlayer');
+    audioHolder.appendChild(audioElement);
+
+    new Promise(
+        (resolve,reject)=>{
+            popupObject.getElementsByTagName('p')[0].remove();
+            popupObject.getElementsByTagName('i')[0].remove();
+            resolve(true)
+        }
+    )
+        .then((success)=>{
+        popupObject.appendChild(audioHolder);
+        }
+    )
+
 };
 
 /**
@@ -249,7 +315,7 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
     var waitIcon = document.createElement('i');
     waitIcon.classList.add('fa','fa-spinner', 'fa-spin');
     this.domElements.creatPasswordContainer.appendChild(waitIcon);
-    this.toggleCopyPassword('hide');
+    this.toggleActionElements('hide');
 
     //set type
     this.setTypeSelected();
@@ -280,9 +346,9 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
             self.domElements.creatPasswordContainer.textContent = self.generatedPassword;
             self.domElements.copyIcon.setAttribute('data-pass', self.generatedPassword);
             self.domElements.creatPasswordContainer.setAttribute('data-pass',self.generatedPassword);
-            self.toggleCopyPassword('show');
+            self.toggleActionElements('show');
         })
-        .then(self.upTickeButtonClick())
+        .then(self.passwordIAASUptick())
         .then(()=>self.showAudioIcon());
     // .then(function(){
     //     ga('send', 'event', 'Action Clicks', 'click', 'Generate Password');
@@ -334,12 +400,11 @@ GeneratePassword.prototype.recordPasswordHistory = function() {
 };
 
 /**
- * Hide or Show the Copy Icon
+ * Hide or Show the Relevant Action Icons
  *
  * @param type
- * @param self
  */
-GeneratePassword.prototype.toggleCopyPassword = function(type) {
+GeneratePassword.prototype.toggleActionElements = function(type) {
     var styleResult = '';
 
     switch (type) {
@@ -351,7 +416,8 @@ GeneratePassword.prototype.toggleCopyPassword = function(type) {
             break;
     }
 
-    return this.domElements.copyIcon.style.display = styleResult;
+    this.domElements.copyIcon.style.display = styleResult;
+    this.domElements.audioTrigger.style.display = styleResult;
 };
 
 /**
