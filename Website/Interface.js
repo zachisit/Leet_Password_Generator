@@ -157,6 +157,7 @@ GeneratePassword.prototype.passwordIAASUptick = function(self) {
             console.warn('the total passwords returned is now '+response.value);
         })
 };
+
 /**
  * Calls vendor api endpoint that upticks a version counter
  * Set up since 2020/05/10

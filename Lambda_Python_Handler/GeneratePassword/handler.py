@@ -111,9 +111,8 @@ class GeneratePassword:
             self.generateLeetPassword()
         
     def generateComplexPassword(self, stringLength=15):
-        lettersAndDigits = string.ascii_letters + string.digits
-        self.createdPassword = ''.join(random.choice(lettersAndDigits) 
-for i in range(stringLength))
+        lettersAndDigits = string.ascii_letters + string.digits + '#@!%$&*'
+        self.createdPassword = ''.join(random.choice(lettersAndDigits) for i in range(stringLength))
         
     def readLeetDictionary(self):
         jsonFile = 'https://s3.amazonaws.com/www.passwordington.com/leetDictionary.json'

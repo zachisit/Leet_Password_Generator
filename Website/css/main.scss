@@ -453,6 +453,10 @@ footer {
     width:600px;
     position:relative;
 
+    .audioContainer {
+      min-height:80px;
+    }
+
     @include media-query--phone {
       width:85%;
     }
