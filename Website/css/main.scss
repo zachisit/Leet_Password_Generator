@@ -8,9 +8,59 @@ $blue:#d1efff;
   transition: $args;
 }
 
+@mixin box-shadow($shadow...) {
+  -webkit-box-shadow: $shadow;
+  -moz-box-shadow: $shadow;
+  box-shadow: $shadow;
+}
+
+@mixin media-query-size($min,$max) {
+  @media only screen and (min-width:$min) and (max-width:$max) {
+    @content;
+  }
+}
+
+@mixin media-query--phone() {
+  @media only screen and (min-width:0px) and (max-width:550px) {
+    @content;
+  }
+}
+
+.noDisplay {
+  opacity:0;
+}
+
+.styledButton {
+  background:none;
+  border:none;
+  outline:none;
+  cursor:pointer;
+  color:#b1b1b1;
+
+  &:hover {
+    @include transition(200ms all ease);
+    color:#333;
+  }
+}
+
+.styleActionButton {
+  @include transition(200ms all ease);
+  background:black;
+  color:white;
+  outline:none;
+  border:none;
+  padding:0.6em 0.8em;
+  cursor:pointer;
+}
+
+.audioPlayer:focus {
+  outline:none;
+}
+
 body {
   margin:0;
   padding:0;
+  width:100%;
   background:$blue;
 }
 
@@ -21,26 +71,18 @@ main {
     margin:4em auto;
 
     .copyAction {
-      display:block;
+      display:inline-block;
       height:20px;
 
       .copyPassword {
         @include transition(500ms all ease);
-        background:none;
-        border:none;
-        color:#ccc;
+        @extend .styledButton;
         padding:0.2em;
         font-size:1.1em;
-        cursor:pointer;
-
-        &:hover {
-          color:#333;
-        }
 
         &:focus {
           @include transition(500ms all ease);
           margin-top:-2px;
-          outline:none;
         }
       }
 
@@ -62,15 +104,57 @@ main {
       }
     }
 
+    .audioAction {
+      display:inline-block;
+      float:right;
+
+      .audioPopupTrigger {
+        @extend .styledButton;
+      }
+    }
+
     &.passwordGenerate {
       @include transition(200ms all ease);
+      @include box-shadow(5px 5px black);
       width:fit-content;
       min-width:405px;
       padding:1em;
       margin:4em auto;
       display:block;
       background:white;
-      box-shadow:5px 5px black;
+
+      .mobileTop {
+        vertical-align:top;
+        display:inline-block;
+      }
+
+      .mobileBottom {
+        vertical-align:top;
+        display:inline-block;
+        float:right;
+      }
+
+      @include media-query--phone {
+        width:82%;
+        min-width:auto;
+
+        .mobileTop {
+          display:block;
+          text-align:center;
+          margin-bottom:15px;
+        }
+
+        .mobileBottom {
+          display:block;
+          float:none !important;
+
+          button {
+            display:block;
+            margin:auto;
+            float:none !important;
+          }
+        }
+      }
 
       .container {
         position:relative;
@@ -93,8 +177,19 @@ main {
           font-weight:100;
           font-family:"Courier New",sans-serif;
           min-height:36px;
+          height:36px;
           cursor:pointer;
           z-index:999;
+
+          @include media-query--phone {
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          }
+
+          &:focus {
+            outline:none;
+          }
         }
 
         .passGenForm {
@@ -147,19 +242,12 @@ main {
           }
 
           button {
-            @include transition(200ms all ease);
-            background:black;
-            color:white;
-            outline:none;
-            border:none;
+            //margin:-5px 0 0 0;
             float:right;
-            padding:0.6em 0.8em;
-            cursor:pointer;
-            margin:-5px 0 0 0;
 
             &:active {
               @include transition(200ms all ease);
-              margin:-6px 0 0 0;
+              //margin:-6px 0 0 0;
             }
 
             &:hover {
@@ -332,6 +420,12 @@ footer {
   visibility:hidden;
   opacity:0;
   z-index:9999;
+  text-align:center;
+
+  &.active {
+    visibility:unset;
+    opacity:unset;
+  }
 
   &.light {
     background:rgba(255,255,255,0.5);
@@ -350,18 +444,26 @@ footer {
   }
 
   .popup {
+    @include box-shadow(0 0 50px rgba(0,0,0,0.5));
     margin:75px auto;
     padding:20px;
     background:white;
     border:1px solid #666;
     min-width:300px;
     width:600px;
-    box-shadow:0 0 50px rgba(0,0,0,0.5);
     position:relative;
 
+    .audioContainer {
+      min-height:80px;
+    }
+
+    @include media-query--phone {
+      width:85%;
+    }
+
     .light & {
+      @include box-shadow(0 2px 10px rgba(0,0,0,0.25));
       border-color:#aaa;
-      box-shadow:0 2px 10px rgba(0,0,0,0.25);
     }
 
     .close {

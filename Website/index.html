@@ -42,7 +42,11 @@
     <meta name="rating"
           content="General"/>
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"/>
+          content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly"
+          content="true">
     <link rel="stylesheet"
           type="text/css"
           href="css/main.min.css"
@@ -131,56 +135,70 @@
                  title="Copy To Clipboard"
                  tabindex="4"
             >b0063r!pudd1n6</div>
-            <div class="copyAction">
-                <button title="Copy"
-                        class="copyPassword"
-                        data-action="copyPassword"
-                        tabindex="3"
-                ><i class="far fa-copy"></i></button>
-                <i class="fas fa-check hidden"></i>
-            </div>
-            <form class="passGenForm">
-                <label for="type">Type</label>
-                <select name="type"
-                        id="type"
-                        tabindex="1">
-                    <option value="complex">complex</option>
-                    <option value="leet">leet</option>
-                </select>
-                <div class="lengthContainer">
-                    <label for="length">Length</label>
-                    <select name="length"
-                            id="length"
-                            tabindex="1">
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="11">10</option>
-                        <option value="12">12</option>
-                        <option value="13">13</option>
-                        <option value="14">14</option>
-                        <option value="15" selected>15</option>
-                        <option value="16">16</option>
-                        <option value="17">17</option>
-                        <option value="18">18</option>
-                        <option value="19">19</option>
-                        <option value="20">20</option>
-                        <option value="21">21</option>
-                        <option value="22">22</option>
-                        <option value="23">23</option>
-                        <option value="24">24</option>
-                        <option value="25">25</option>
-                        <option value="26">26</option>
-                        <option value="27">27</option>
-                        <option value="28">28</option>
-                        <option value="29">29</option>
-                        <option value="30">30</option>
-                    </select>
+            <div class="iconActionRow" style="min-height:30px;height:30px;">
+                <div class="copyAction">
+                    <button title="Copy"
+                            class="copyPassword"
+                            data-action="copyPassword"
+                            tabindex="3"
+                    ><i class="far fa-copy" aria-label="copy"></i></button>
+                    <i class="fas fa-check hidden"></i>
                 </div>
-                <button title="Create Password"
-                        data-action="generatePassword"
-                        tabindex="2"
-                        class="generateButton"
-                >Create Passwordington</button>
+                <div class="audioAction noDisplay">
+                    <button title="Listen to audio"
+                            class="audioPopupTrigger"
+                            data-action="generateAudioFile"
+                            tabindex="4"
+                    ><i class="fas fa-volume-up" aria-label="volume up"></i></button>
+                </div>
+            </div>
+
+            <form class="passGenForm">
+                <div class="mobileTop">
+                    <label for="type">Type</label>
+                    <select name="type"
+                            id="type"
+                            tabindex="1">
+                        <option value="complex">complex</option>
+                        <option value="leet">leet</option>
+                    </select>
+                    <div class="lengthContainer">
+                        <label for="length">Length</label>
+                        <select name="length"
+                                id="length"
+                                tabindex="1">
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="11">10</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15" selected>15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mobileBottom">
+                    <button title="Create Password"
+                            data-action="generatePassword"
+                            tabindex="2"
+                            class="styleActionButton"
+                    >Create Passwordington</button>
+                </div>
             </form>
         </div>
     </section>
@@ -224,7 +242,7 @@
                          alt="top hat icon" />
                 </p>
                 <p>
-                    <i>Passwordington</i> is the result of a side project by <a href="https://www.himynameiszachsmithandiamasoftwaredeveloperfromkentucky.com" title="Zachary Smith software developer website" target="_blank">Zach Smith</a> - <a href="https://twitter.com/zachisit" title="Zachary Smith twitter" target="_blank">@zachisit</a>. Site is hosted via an AWS s3 bucket, powered by an AWS Lambda FAAS written in Python, connected via an AWS API endpoint. Fun times. This site has been beta for <span class="betaDayCount"></span> days.
+                    <i>Passwordington</i> is the result of a side project by <a href="https://www.himynameiszachsmithandiamasoftwaredeveloperfromkentucky.com" title="Zachary Smith software developer website" target="_blank">Zach Smith</a> - <a href="https://twitter.com/zachisit" title="Zachary Smith twitter" target="_blank">@zachisit</a>. Site is hosted via an AWS s3 bucket, powered by two <a href="https://aws.amazon.com/lambda/" target="_blank" title="AWS Lambda FAAS">AWS Lambda FAAS</a>  methods connected to <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html" target="_blank" title="What is Amazon API Gateway?">AWS API Gateway</a> endpoints: an AWS Lambda FAAS to generate passwords written in Python and an AWS Lambda FAAS to generate audio file written in Python leveraging <a href="https://aws.amazon.com/polly/" target="_blank" title="AWS text to speech with AWS Polly">AWS Polly</a> service, and utilizing <a href="https://countapi.xyz/" title="CountAPI" target="_blank">Integer as a Service CountAPI</a>. Fun times. This site has been beta for <span class="betaDayCount"></span> days, at version 1.2.3.
                 </p>
             </div>
         </div>
