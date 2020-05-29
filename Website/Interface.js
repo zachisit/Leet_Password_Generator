@@ -73,6 +73,7 @@ GeneratePassword.prototype.assignDomElements = function(self) {
     this.domElements.checkIcon = this.domElements.generatedPasswordContainer.querySelectorAll('.fa-check')[0];
     this.domElements.copyIcon = this.domElements.generatedPasswordContainer.querySelectorAll('.copyPassword')[0];
     this.domElements.audioTrigger = this.domElements.generatedPasswordContainer.querySelectorAll('.audioAction')[0];
+    this.domElements.smsTrigger = this.domElements.generatedPasswordContainer.querySelectorAll('.smsAction')[0];
 };
 
 GeneratePassword.prototype.paintDaysSinceBeta = function(self) {
@@ -174,9 +175,24 @@ GeneratePassword.prototype.audiofileIAASUptick = function(self) {
         })
 };
 
-
+/**
+ *
+ * @param self
+ * @param e
+ * @param el
+ */
 GeneratePassword.prototype.showAudioIcon = function(self,e,el) {
     this.domElements.audioTrigger.classList.remove('noDisplay');
+};
+
+/**
+ *
+ * @param self
+ * @param e
+ * @param el
+ */
+GeneratePassword.prototype.showSMSIcon = function(self,e,el) {
+    this.domElements.smsTrigger.classList.remove('noDisplay');
 };
 
 /**
@@ -238,6 +254,116 @@ GeneratePassword.prototype.closePopup = function(){
     this.domElements.generalPopup.remove();
 };
 
+//@TODO:if not using any self,e,el then remove
+/**
+ *
+ * @param self
+ * @param e
+ * @param el
+ */
+GeneratePassword.prototype.generateSMSAlert = function(self,e,el) {
+    this.generatePopup('smsPopup');
+
+    //const loadingIcon = document.createElement('i');
+    const messageP = document.createElement('p');
+    const newContainer = document.createElement('div');
+    const form = document.createElement('form');
+    const numberInputOne = document.createElement('input');
+    const numberInputTwo = document.createElement('input');
+    const numberInputThree = document.createElement('input');
+    const spanStartParanthesis = document.createElement('span');
+    const spanEndParanthesis = document.createElement('span');
+    const spanDash = document.createElement('span');
+    const submitBtn = document.createElement('button');
+
+    newContainer.classList.add('audioContainer');
+    form.classList.add('phoneNumberRow');
+    messageP.innerText = 'Enter an USA based phone number to send your password to.';
+    numberInputOne.setAttribute('type','tel');
+    numberInputOne.setAttribute('id','phoneSMSNumberOne');
+    numberInputOne.setAttribute('size','3');
+    numberInputOne.setAttribute('tab-index','1');
+    numberInputOne.setAttribute('maxlength','3');
+    numberInputOne.setAttribute('placeholder','111');
+    numberInputTwo.setAttribute('type','tel');
+    numberInputTwo.setAttribute('id','phoneSMSNumberOne');
+    numberInputTwo.setAttribute('size','3');
+    numberInputTwo.setAttribute('maxlength','3');
+    numberInputTwo.setAttribute('tab-index','2');
+    numberInputTwo.setAttribute('placeholder','222');
+    numberInputThree.setAttribute('type','tel');
+    numberInputThree.setAttribute('id','phoneSMSNumberOne');
+    numberInputThree.setAttribute('size','3');
+    numberInputThree.setAttribute('maxlength','4');
+    numberInputThree.setAttribute('tab-index','3');
+    numberInputThree.setAttribute('placeholder','3333');
+    submitBtn.classList.add('styleActionButton');
+    submitBtn.setAttribute('data-action','triggerSMSAction');
+    submitBtn.innerText = 'Send SMS';
+    submitBtn.title = 'Send SMS';
+    submitBtn.style.display = 'none';
+    spanStartParanthesis.innerText = '( ';
+    spanEndParanthesis.innerText = ')  ';
+    spanDash.innerText = ' - ';
+
+
+    newContainer.appendChild(messageP);
+    form.appendChild(spanStartParanthesis);
+    form.appendChild(numberInputOne);
+    form.appendChild(spanEndParanthesis);
+    form.appendChild(numberInputTwo);
+    form.appendChild(spanDash);
+    form.appendChild(numberInputThree);
+    form.appendChild(submitBtn);
+    newContainer.appendChild(form);
+
+    this.domElements.generalPopup.getElementsByClassName('content')[0].appendChild(newContainer);
+    this.domElements.smspopupform = this.domElements.generalPopup.getElementsByClassName('phoneNumberRow')[0];
+    this.SMSPopupInputHandler();
+};
+
+/**
+ *
+ * @param self
+ * @param el
+ * @param e
+ * @constructor
+ */
+GeneratePassword.prototype.SMSPopupInputHandler = function(self,el,e) {
+    let filled = [];
+    const submitBtn = this.domElements.smspopupform.getElementsByClassName('styleActionButton')[0];
+
+    this.domElements.smspopupform.querySelectorAll('input').forEach(function(i,k){
+        i.addEventListener('keyup',function(evt){
+            const input = evt.target;
+
+            if (parseInt(input.getAttribute('maxlength')) === input.value.length &&
+                !filled.includes(input)) {
+                filled.push(input)
+            }
+            // if (parseInt(input.getAttribute('maxlength')) === input.value.length) {
+            //     if (!filled.includes(input)) {
+            //         filled.push(input)
+            //     }
+            // } else if (filled.includes(input)) {
+            //     filled.pop(input);
+            // }
+
+            if (filled.length === 3) {
+                submitBtn.style.display = 'block';
+            } else {
+                submitBtn.style.display = 'none';
+            }
+        })
+    })
+};
+
+/**
+ * Generate Audio File Popup Builder
+ * @param self
+ * @param e
+ * @param el
+ */
 GeneratePassword.prototype.generateAudioFile = function(self,e,el) {
     this.generatePopup('audioPopup');
 
@@ -350,7 +476,8 @@ GeneratePassword.prototype.generatePassword = function(self,e,el) {
             self.toggleActionElements('show');
         })
         .then(self.passwordIAASUptick())
-        .then(()=>self.showAudioIcon());
+        .then(()=>self.showAudioIcon())
+        .then(()=>self.showSMSIcon());
     // .then(function(){
     //     ga('send', 'event', 'Action Clicks', 'click', 'Generate Password');
     // })
@@ -419,6 +546,7 @@ GeneratePassword.prototype.toggleActionElements = function(type) {
 
     this.domElements.copyIcon.style.display = styleResult;
     this.domElements.audioTrigger.style.display = styleResult;
+    this.domElements.smsTrigger.style.display = styleResult;
 };
 
 /**

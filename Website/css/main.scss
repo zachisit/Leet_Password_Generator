@@ -20,6 +20,12 @@ $blue:#d1efff;
   }
 }
 
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  border-radius: $radius;
+}
+
 @mixin media-query--phone() {
   @media only screen and (min-width:0px) and (max-width:550px) {
     @content;
@@ -455,6 +461,15 @@ footer {
 
     .audioContainer {
       min-height:80px;
+
+      input {
+        @include border-radius(10px);
+        outline:none;
+        border:1px solid #ccc;
+        padding:5px;
+        text-align:center;
+        color:#333;
+      }
     }
 
     @include media-query--phone {
